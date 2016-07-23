@@ -15,15 +15,15 @@
 # limitations under the License.
 
 import codecs
-import cStringIO as StringIO
+import io as StringIO
 import csv
 import os
 import re
 import zipfile
 
-import gtfsfactory as gtfsfactory_module
-import problems
-import util
+from . import gtfsfactory as gtfsfactory_module
+from . import problems
+from . import util
 
 class Loader:
   def __init__(self,
@@ -73,7 +73,7 @@ class Loader:
       assert not self._path
       return True
 
-    if not isinstance(self._path, basestring) and hasattr(self._path, 'read'):
+    if not isinstance(self._path, str) and hasattr(self._path, 'read'):
       # A file-like object, used for testing with a StringIO file
       self._zip = zipfile.ZipFile(self._path, mode='r')
       return True
@@ -160,7 +160,7 @@ class Loader:
     # integer and id fields; they will be validated at higher levels.
     reader = csv.reader(eol_checker, skipinitialspace=True)
 
-    raw_header = reader.next()
+    raw_header = next(reader)
     header_occurrences = util.defaultdict(lambda: 0)
     header = []
     valid_columns = []  # Index into raw_header and raw_row
@@ -184,7 +184,7 @@ class Loader:
       valid_columns.append(i)
       header_occurrences[h_stripped] += 1
 
-    for name, count in header_occurrences.items():
+    for name, count in list(header_occurrences.items()):
       if count > 1:
         self._problems.DuplicateColumn(
             header=name,
@@ -275,7 +275,7 @@ class Loader:
       # of both the Google and OneBusAway GTFS parser.
       valid_values = [value.strip() for value in valid_values]
 
-      d = dict(zip(header, valid_values))
+      d = dict(list(zip(header, valid_values)))
       yield (d, line_num, header, valid_values)
 
   # TODO: Add testing for this specific function
@@ -290,13 +290,13 @@ class Loader:
                                    file_name, self._problems)
     reader = csv.reader(eol_checker)  # Use excel dialect
 
-    header = reader.next()
-    header = map(lambda x: x.strip(), header)  # trim any whitespace
+    header = next(reader)
+    header = [x.strip() for x in header]  # trim any whitespace
     header_occurrences = util.defaultdict(lambda: 0)
     for column_header in header:
       header_occurrences[column_header] += 1
 
-    for name, count in header_occurrences.items():
+    for name, count in list(header_occurrences.items()):
       if count > 1:
         self._problems.DuplicateColumn(
             header=name,
@@ -354,7 +354,7 @@ class Loader:
         ci = col_index[i]
         if ci >= 0:
           if len(row) <= ci:  # handle short CSV rows
-            result[i] = u''
+            result[i] = ''
           else:
             try:
               result[i] = row[ci].decode('utf-8').strip()
@@ -474,9 +474,9 @@ class Loader:
           periods[period.service_id] = (period, context)
 
         exception_type = row[2]
-        if exception_type == u'1':
+        if exception_type == '1':
           period.SetDateHasService(row[1], True, self._problems)
-        elif exception_type == u'2':
+        elif exception_type == '2':
           period.SetDateHasService(row[1], False, self._problems)
         else:
           self._problems.InvalidValue('exception_type', exception_type)
@@ -484,7 +484,7 @@ class Loader:
 
     # Now insert the periods into the schedule object, so that they're
     # validated with both calendar and calendar_dates info present
-    for period, context in periods.values():
+    for period, context in list(periods.values()):
       self._problems.SetFileContext(*context)
       self._schedule.AddServicePeriodObject(period, self._problems)
       self._problems.ClearContext()
@@ -519,7 +519,7 @@ class Loader:
       shape.AddShapePointObjectUnsorted(shapepoint, self._problems)
       self._problems.ClearContext()
 
-    for shape_id, shape in shapes.items():
+    for shape_id, shape in list(shapes.items()):
       self._schedule.AddShapeObject(shape, self._problems)
       del shapes[shape_id]
 

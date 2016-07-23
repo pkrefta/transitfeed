@@ -24,11 +24,11 @@ import re
 import socket
 import sys
 import time
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
-import problems as problems_module
-from trip import Trip
-from version import __version__
+from . import problems as problems_module
+from .trip import Trip
+from .version import __version__
 
 # URL which identifies the latest release version of the transitfeed library.
 LATEST_RELEASE_VERSION_URL = 'https://raw.githubusercontent.com/wiki/google/transitfeed/LatestReleaseVersion.md'
@@ -37,8 +37,8 @@ LATEST_RELEASE_VERSION_URL = 'https://raw.githubusercontent.com/wiki/google/tran
 class OptionParserLongError(optparse.OptionParser):
   """OptionParser subclass that includes list of options above error message."""
   def error(self, msg):
-    print >>sys.stderr, self.format_help()
-    print >>sys.stderr, '\n\n%s: error: %s\n\n' % (self.get_prog_name(), msg)
+    print(self.format_help(), file=sys.stderr)
+    print('\n\n%s: error: %s\n\n' % (self.get_prog_name(), msg), file=sys.stderr)
     sys.exit(2)
 
 
@@ -88,10 +88,10 @@ or an email to the public group transitfeed@googlegroups.com. Sorry!
             dump.append(' --> %s' % line)
           else:
             dump.append('     %s' % line)
-      for local_name, local_val in frame_obj.f_locals.items():
+      for local_name, local_val in list(frame_obj.f_locals.items()):
         try:
           truncated_val = str(local_val)[0:500]
-        except Exception, e:
+        except Exception as e:
           dump.append('    Exception in str(%s): %s' % (local_name, e))
         else:
           if len(truncated_val) >= 500:
@@ -103,13 +103,13 @@ or an email to the public group transitfeed@googlegroups.com. Sorry!
 
     open('transitfeedcrash.txt', 'w').write(''.join(dump))
 
-    print ''.join(dump)
-    print
-    print dashes
-    print apology
+    print(''.join(dump))
+    print()
+    print(dashes)
+    print(apology)
 
     try:
-      raw_input('Press enter to continue...')
+      input('Press enter to continue...')
     except EOFError:
       # Ignore stdin being closed. This happens during some tests.
       pass
@@ -163,7 +163,7 @@ except:
         args = tuple()
       else:
         args = self.default_factory,
-      return type(self), args, None, None, self.items()
+      return type(self), args, None, None, list(self.items())
     def copy(self):
       return self.__copy__()
     def __copy__(self):
@@ -171,7 +171,7 @@ except:
     def __deepcopy__(self, memo):
       import copy
       return type(self)(self.default_factory,
-                        copy.deepcopy(self.items()))
+                        copy.deepcopy(list(self.items())))
     def __repr__(self):
       return 'defaultdict(%s, %s)' % (self.default_factory,
                                       dict.__repr__(self))
@@ -189,23 +189,23 @@ def CheckVersion(problems, latest_version=None):
   if not latest_version:
     timeout = 20
     socket.setdefaulttimeout(timeout)
-    request = urllib2.Request(LATEST_RELEASE_VERSION_URL)
+    request = urllib.request.Request(LATEST_RELEASE_VERSION_URL)
 
     try:
-      response = urllib2.urlopen(request)
+      response = urllib.request.urlopen(request)
       content = response.read()
       m = re.search(r'version=(\d+\.\d+\.\d+)', content)
       if m:
         latest_version = m.group(1)
 
-    except urllib2.HTTPError as e:
+    except urllib.error.HTTPError as e:
       description = ('During the new-version check, we failed to reach '
                      'transitfeed server: Reason: %s [%s].' %
                      (e.reason, e.code))
       problems.OtherProblem(
         description=description, type=problems_module.TYPE_NOTICE)
       return
-    except urllib2.URLError as e:
+    except urllib.error.URLError as e:
       description = ('During the new-version check, we failed to reach '
                      'transitfeed server. Reason: %s.' % e.reason)
       problems.OtherProblem(
@@ -225,7 +225,7 @@ def CheckVersion(problems, latest_version=None):
 
 
 def _MaxVersion(versions):
-  versions = filter(None, versions)
+  versions = [_f for _f in versions if _f]
   versions.sort(lambda x,y: -cmp([int(item) for item in x.split('.')],
                                  [int(item) for item in y.split('.')]))
   if len(versions) > 0:
@@ -238,7 +238,7 @@ def EncodeUnicode(text):
   """
   Optionally encode text and return it. The result should be safe to print.
   """
-  if type(text) == type(u''):
+  if type(text) == type(''):
     return text.encode(OUTPUT_ENCODING)
   else:
     return text
@@ -249,7 +249,7 @@ def IsValidURL(url):
     - only checks whether the URL starts with 'http://' or 'https://'
   """
   # TODO: Add more thorough checking of URL
-  return url.startswith(u'http://') or url.startswith(u'https://')
+  return url.startswith('http://') or url.startswith('https://')
 
 def ValidateURL(url, column_name=None, problems=None):
   """
@@ -426,7 +426,7 @@ def ValidateYesNoUnknown(value, column_name=None, problems=None):
     return False
 
 def IsEmpty(value):
-  return value is None or (isinstance(value, basestring) and not value.strip())
+  return value is None or (isinstance(value, str) and not value.strip())
 
 def FindUniqueId(dic):
   """Return a string not used as a key in the dictionary dic"""
@@ -444,7 +444,7 @@ def TimeToSecondsSinceMidnight(time_string):
   m = re.match(r'(\d{1,3}):([0-5]\d):([0-5]\d)$', time_string)
   # ignored: matching for leap seconds
   if not m:
-    raise problems_module.Error, 'Bad HH:MM:SS "%s"' % time_string
+    raise problems_module.Error('Bad HH:MM:SS "%s"' % time_string)
   return int(m.group(1)) * 3600 + int(m.group(2)) * 60 + int(m.group(3))
 
 def FormatSecondsSinceMidnight(s):
@@ -533,14 +533,14 @@ class CsvUnicodeWriter:
     utf-8."""
     encoded_row = []
     for s in row:
-      if isinstance(s, unicode):
+      if isinstance(s, str):
         encoded_row.append(s.encode("utf-8"))
       else:
         encoded_row.append(s)
     try:
       self.writer.writerow(encoded_row)
-    except Exception, e:
-      print 'error writing %s as %s' % (row, encoded_row)
+    except Exception as e:
+      print('error writing %s as %s' % (row, encoded_row))
       raise e
 
   def writerows(self, rows):
@@ -589,10 +589,10 @@ class EndOfLineChecker:
   def __iter__(self):
     return self
 
-  def next(self):
+  def __next__(self):
     """Return next line without end of line marker or raise StopIteration."""
     try:
-      next_line = self._f.next()
+      next_line = next(self._f)
     except StopIteration:
       self._FinalCheck()
       raise
@@ -610,7 +610,7 @@ class EndOfLineChecker:
     elif m_eol.group() == "":
       # Should only happen at the end of the file
       try:
-        self._f.next()
+        next(self._f)
         raise RuntimeError("Unexpected row without new line sequence")
       except StopIteration:
         # Will be raised again when EndOfLineChecker.next() is next called
@@ -620,7 +620,7 @@ class EndOfLineChecker:
         codecs.getencoder('string_escape')(m_eol.group())[0],
         (self._name, self._line_number))
     next_line_contents = next_line[0:m_eol.start()]
-    for seq, name in INVALID_LINE_SEPARATOR_UTF8.items():
+    for seq, name in list(INVALID_LINE_SEPARATOR_UTF8.items()):
       if next_line_contents.find(seq) != -1:
         self._problems.OtherProblem(
           "Line contains %s" % name,

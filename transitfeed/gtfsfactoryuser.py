@@ -38,7 +38,7 @@ class GtfsFactoryUser(object):
       #            This is why the import is here and not at the top level.
       #            When this runs, gtfsfactory should have already been loaded
       #            by other modules, avoiding the circular imports.
-      import gtfsfactory
+      from . import gtfsfactory
       self._gtfs_factory = gtfsfactory.GetGtfsFactory()
     return self._gtfs_factory
 

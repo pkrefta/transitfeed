@@ -16,9 +16,9 @@
 
 import bisect
 
-from gtfsfactoryuser import GtfsFactoryUser
-import problems as problems_module
-import util
+from .gtfsfactoryuser import GtfsFactoryUser
+from . import problems as problems_module
+from . import util
 
 class Shape(GtfsFactoryUser):
   """This class represents a geographic shape that corresponds to the route

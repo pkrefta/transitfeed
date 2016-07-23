@@ -14,9 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import problems as problems_module
-from stop import Stop
-import util
+from . import problems as problems_module
+from .stop import Stop
+from . import util
 
 class StopTime(object):
   """

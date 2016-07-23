@@ -14,9 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from gtfsobjectbase import GtfsObjectBase
-import problems as problems_module
-import util
+from .gtfsobjectbase import GtfsObjectBase
+from . import problems as problems_module
+from . import util
 
 class Transfer(GtfsObjectBase):
   """Represents a transfer in a schedule"""
@@ -73,7 +73,7 @@ class Transfer(GtfsObjectBase):
   def ValidateTransferType(self, problems):
     if not util.IsEmpty(self.transfer_type):
       if (not isinstance(self.transfer_type, int)) or \
-          (self.transfer_type not in range(0, 4)):
+          (self.transfer_type not in list(range(0, 4))):
         problems.InvalidValue('transfer_type', self.transfer_type)
         return False
     return True
@@ -119,13 +119,13 @@ class Transfer(GtfsObjectBase):
     return distance
 
   def ValidateFromStopIdIsValid(self, problems):
-    if self.from_stop_id not in self._schedule.stops.keys():
+    if self.from_stop_id not in list(self._schedule.stops.keys()):
       problems.InvalidValue('from_stop_id', self.from_stop_id)
       return False
     return True
 
   def ValidateToStopIdIsValid(self, problems):
-    if self.to_stop_id not in self._schedule.stops.keys():
+    if self.to_stop_id not in list(self._schedule.stops.keys()):
       problems.InvalidValue('to_stop_id', self.to_stop_id)
       return False
     return True

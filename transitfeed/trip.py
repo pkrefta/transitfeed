@@ -16,9 +16,9 @@
 
 import warnings
 
-from gtfsobjectbase import GtfsObjectBase
-import problems as problems_module
-import util
+from .gtfsobjectbase import GtfsObjectBase
+from . import problems as problems_module
+from . import util
 
 class Trip(GtfsObjectBase):
   _REQUIRED_FIELD_NAMES = ['route_id', 'service_id', 'trip_id']
@@ -103,7 +103,7 @@ class Trip(GtfsObjectBase):
                    "stop_sequence=? and stop_id=?",
                    (self.trip_id, stoptime.stop_sequence, stoptime.stop_id))
     if cursor.rowcount == 0:
-      raise problems_module.Error, 'Attempted replacement of StopTime object which does not exist'
+      raise problems_module.Error('Attempted replacement of StopTime object which does not exist')
     self._AddStopTimeObjectUnordered(stoptime, schedule)
 
   def AddStopTimeObject(self, stoptime, schedule=None, problems=None):
@@ -422,7 +422,7 @@ class Trip(GtfsObjectBase):
     if start_time == None or start_time == '':  # 0 is OK
       problem_reporter.MissingValue('start_time')
       return
-    if isinstance(start_time, basestring):
+    if isinstance(start_time, str):
       try:
         start_time = util.TimeToSecondsSinceMidnight(start_time)
       except problems_module.Error:
@@ -434,7 +434,7 @@ class Trip(GtfsObjectBase):
     if end_time == None or end_time == '':
       problem_reporter.MissingValue('end_time')
       return
-    if isinstance(end_time, basestring):
+    if isinstance(end_time, str):
       try:
         end_time = util.TimeToSecondsSinceMidnight(end_time)
       except problems_module.Error:
@@ -476,8 +476,8 @@ class Trip(GtfsObjectBase):
       return (self.trip_id,
               util.FormatSecondsSinceMidnight(headway[0]),
               util.FormatSecondsSinceMidnight(headway[1]),
-              unicode(headway[2]),
-              unicode(headway[3]))
+              str(headway[2]),
+              str(headway[3]))
 
   def GetFrequencyOutputTuples(self):
     tuples = []
@@ -604,7 +604,7 @@ class Trip(GtfsObjectBase):
       try:
         route_type = self._schedule.GetRoute(self.route_id).route_type
         max_speed = route_class._ROUTE_TYPES[route_type]['max_speed']
-      except KeyError, e:
+      except KeyError as e:
         # If route_type cannot be found, assume it is 0 (Tram) for checking
         # speeds between stops.
         max_speed = route_class._ROUTE_TYPES[0]['max_speed']

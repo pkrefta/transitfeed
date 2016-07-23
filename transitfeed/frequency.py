@@ -14,8 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from gtfsobjectbase import GtfsObjectBase
-import util
+from .gtfsobjectbase import GtfsObjectBase
+from . import util
 
 class Frequency(GtfsObjectBase):
     """This class represents a period of a trip during which the vehicle travels
@@ -30,7 +30,7 @@ class Frequency(GtfsObjectBase):
       self._schedule = None
       if field_dict:
         if isinstance(field_dict, self.__class__):
-          for k, v in field_dict.iteritems():
+          for k, v in field_dict.items():
             self.__dict__[k] = v
         else:
           self.__dict__.update(field_dict)
