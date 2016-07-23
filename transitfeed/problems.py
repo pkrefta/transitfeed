@@ -17,7 +17,7 @@
 import logging
 import time
 
-from transitfeed import util
+import .util
 from functools import reduce
 
 # Problem types:
