@@ -24,7 +24,7 @@ class Trip(GtfsObjectBase):
   _REQUIRED_FIELD_NAMES = ['route_id', 'service_id', 'trip_id']
   _FIELD_NAMES = _REQUIRED_FIELD_NAMES + [
     'trip_headsign', 'trip_short_name', 'direction_id', 'block_id', 'shape_id',
-    'bikes_allowed', 'wheelchair_accessible'
+    'bikes_allowed', 'wheelchair_accessible', 'original_trip_id'
     ]
   _TABLE_NAME= "trips"
 
@@ -230,9 +230,10 @@ class Trip(GtfsObjectBase):
     cursor = self._schedule._connection.cursor()
     cursor.execute(
         'SELECT arrival_secs,departure_secs,stop_headsign,pickup_type,'
-        'drop_off_type,shape_dist_traveled,stop_id,stop_sequence FROM '
-        'stop_times WHERE '
-        'trip_id=? ORDER BY stop_sequence', (self.trip_id,))
+        'drop_off_type,shape_dist_traveled,stop_id,stop_sequence,timepoint '
+        'FROM stop_times '
+        'WHERE trip_id=? '
+        'ORDER BY stop_sequence', (self.trip_id,))
     stop_times = []
     stoptime_class = self.GetGtfsFactory().StopTime
     if problems is None:
@@ -249,7 +250,8 @@ class Trip(GtfsObjectBase):
                                        pickup_type=row[3],
                                        drop_off_type=row[4],
                                        shape_dist_traveled=row[5],
-                                       stop_sequence=row[7]))
+                                       stop_sequence=row[7],
+                                       timepoint=row[8]))
     return stop_times
 
   def GetHeadwayStopTimes(self, problems=None):
@@ -291,7 +293,8 @@ class Trip(GtfsObjectBase):
                                         drop_off_type=st.drop_off_type,
                                         shape_dist_traveled= \
                                             st.shape_dist_traveled,
-                                        stop_sequence=st.stop_sequence))
+                                        stop_sequence=st.stop_sequence,
+                                        timepoint=st.timepoint))
       # add stoptimes to the stoptimes_list
       stoptimes_list.append ( stoptimes )
     return stoptimes_list

@@ -327,7 +327,11 @@ class ScheduleRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       time_stops = trip.GetTimeStops()
       for arr,dep,stop in time_stops:
         points.append((stop.stop_lat, stop.stop_lon))
-    return points
+    route = schedule.GetRoute(trip.route_id)
+    polyline_data = {'points': points}
+    if route.route_color:
+      polyline_data['color'] = '#' + route.route_color
+    return polyline_data
 
   def handle_json_GET_neareststops(self, params):
     """Return a list of the nearest 'limit' stops to 'lat', 'lon'"""
@@ -526,10 +530,12 @@ https://github.com/google/transitfeed/wiki/ScheduleViewer
 
   if options.key and os.path.isfile(options.key):
     options.key = open(options.key).read().strip()
-    
+
   # This key is registered to gtfs.schedule.viewer@gmail.com
   if not options.key:
     options.key = 'AIzaSyAZTTRO6RC6LQyKCD3JODhxbClsZl95P9U'
+
+  util.CheckVersion(transitfeed.ProblemReporter())
 
   schedule = transitfeed.Schedule(problem_reporter=transitfeed.ProblemReporter())
   print 'Loading data from feed "%s"...' % options.feed_filename

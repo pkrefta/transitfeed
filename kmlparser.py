@@ -1,4 +1,4 @@
-#!/usr/bin/python2.5
+#!/usr/bin/python
 
 # Copyright (C) 2007 Google Inc.
 #
@@ -20,9 +20,12 @@ file format into Google transit feed format.
 
 The KmlParser class is the main class implementing the parser.
 
-Currently only information about stops is extracted from a kml file.
+For point geometries, information about stops is extracted from a kml file.
 The extractor expects the stops to be represented as placemarks with
 a single point.
+
+For line geometries, information about shapes is extracted from a kml file.
+
 """
 
 import re
@@ -82,11 +85,7 @@ class KmlParser(object):
         m = self.stopNameRe.search(p.name)
         feed.AddStop(lat, lon, m.group(1))
       elif p.IsLine():
-        shape_num = shape_num + 1
-        shape = transitfeed.Shape("kml_shape_" + str(shape_num))
-        for (lon, lat) in p.coordinates:
-          shape.AddPoint(lat, lon)
-        feed.AddShapeObject(shape)
+        self.ConvertPlacemarkToShape(p, feed)
 
   def ParsePlacemark(self, node):
     ret = Placemark()
@@ -115,6 +114,28 @@ class KmlParser(object):
       ret.append((float(coords[0]), float(coords[1])))
     return ret
 
+  def ConvertPlacemarkToShape(self, p, feed):
+    shape = transitfeed.Shape(p.name)
+    for (lon, lat) in p.coordinates:
+      shape.AddPoint(lat, lon)
+
+    try:
+      existing_shape = feed.GetShape(p.name)
+
+      # If the existing shape has the same points, we don't need to add a new
+      # shape.
+      if existing_shape == shape:
+        return
+
+      # If the shape has different points, we need to modify our shape id so as
+      # to avoid duplication.
+      shape.shape_id += '_%d' % len(feed.GetShapeList())
+
+    except KeyError:
+      # No existing shape with that id, so no worries.
+      pass
+
+    feed.AddShapeObject(shape)
 
 def main():
   usage = \
