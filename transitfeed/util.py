@@ -26,7 +26,7 @@ import sys
 import time
 import urllib2
 
-import problems as problems_module
+import transitfeed.problems as problems_module
 from trip import Trip
 from version import __version__
 
