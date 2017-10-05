@@ -63,26 +63,26 @@ Stop object which has attributes such as stop_lat and stop_name.
 # because problems.py isn't fully loaded yet). Loading util first solves this as
 # problems.py gets fully loaded right away.
 # TODO: Solve this problem cleanly
-from util import *
-from agency import *
-from fareattribute import *
-from farerule import *
-from frequency import *
-from gtfsfactory import *
-from gtfsfactoryuser import *
-from gtfsobjectbase import *
-from loader import *
-from problems import *
-from route import *
-from schedule import *
-from serviceperiod import *
-from shape import *
-from shapelib import *
-from shapeloader import *
-from shapepoint import *
-from stop import *
-from stoptime import *
-from transfer import *
-from trip import *
+from transitfeed.util import *
+from transitfeed.agency import *
+from transitfeed.fareattribute import *
+from transitfeed.farerule import *
+from transitfeed.frequency import *
+from transitfeed.gtfsfactory import *
+from transitfeed.gtfsfactoryuser import *
+from transitfeed.gtfsobjectbase import *
+from transitfeed.loader import *
+from transitfeed.problems import *
+from transitfeed.route import *
+from transitfeed.schedule import *
+from transitfeed.serviceperiod import *
+from transitfeed.shape import *
+from transitfeed.shapelib import *
+from transitfeed.shapeloader import *
+from transitfeed.shapepoint import *
+from transitfeed.stop import *
+from transitfeed.stoptime import *
+from transitfeed.transfer import *
+from transitfeed.trip import *
 
 from transitfeed.version import __version__
