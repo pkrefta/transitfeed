@@ -17,6 +17,8 @@
 
 """Filter the unused stops out of a transit feed file."""
 
+from __future__ import print_function
+
 import optparse
 import sys
 import transitfeed

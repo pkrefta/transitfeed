@@ -23,6 +23,7 @@ polyline looks okay (no unnecassary loops, no jumps to a far away location) and
 look at the time of each leg. Also check the route names and headsigns are
 formatted correctly and not redundant.
 """
+from __future__ import print_function
 
 from datetime import datetime
 from datetime import timedelta
