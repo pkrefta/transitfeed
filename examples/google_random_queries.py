@@ -209,8 +209,8 @@ https://github.com/google/transitfeed/wiki/GoogleRandomQueries
   parser.set_defaults(output="google_random_queries.html", limit=50)
   (options, args) = parser.parse_args()
   if len(args) != 1:
-    print >>sys.stderr, parser.format_help()
-    print >>sys.stderr, "\n\nYou must provide the path of a single feed\n\n"
+    print(parser.format_help(), file=sys.stderr)
+    print("\n\nYou must provide the path of a single feed\n\n", file=sys.stderr)
     sys.exit(2)
   feed_path = args[0]
 
@@ -227,8 +227,8 @@ https://github.com/google/transitfeed/wiki/GoogleRandomQueries
               locations,
               options.limit,
               open(options.output, "w"))
-  print ("Load %s in your web browser. It contains more instructions." %
-         options.output)
+  print(("Load %s in your web browser. It contains more instructions." %
+         options.output))
 
 
 if __name__ == "__main__":
