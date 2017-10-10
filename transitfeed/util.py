@@ -25,7 +25,12 @@ import re
 import socket
 import sys
 import time
-from urllib2 import urlopen, Request, HTTPError, URLError
+
+try:
+    from urllib.request import urlopen, Request
+    from urllib.error import HTTPError, URLError
+except ImportError:
+    from urllib2 import urlopen, Request, HTTPError, URLError
 
 import problems as problems_module
 from trip import Trip
