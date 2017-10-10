@@ -96,7 +96,7 @@ class UnusualTripFilter(object):
 
   def info(self, text):
     if not self._quiet:
-      print text.encode("utf-8")
+      print(text.encode("utf-8"))
 
 
 def main():
@@ -146,7 +146,7 @@ https://github.com/google/transitfeed/wiki/UnusualTripFilter
                               memory_db=options.memory_db)
   data = loader.Load()
   filter.filter(data)
-  print 'Saving data'
+  print('Saving data')
 
   # Write the result
   if options.output is None:
