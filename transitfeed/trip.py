@@ -16,9 +16,11 @@
 
 import warnings
 
-from gtfsobjectbase import GtfsObjectBase
-import problems as problems_module
-import util
+from transitfeed.gtfsobjectbase import GtfsObjectBase
+from transitfeed.problems import default_problem_reporter
+import transitfeed.problems
+# import problems as problems_module
+import transitfeed.util
 
 class Trip(GtfsObjectBase):
   _REQUIRED_FIELD_NAMES = ['route_id', 'service_id', 'trip_id']
@@ -68,7 +70,7 @@ class Trip(GtfsObjectBase):
     if problems is None:
       # TODO: delete this branch when StopTime.__init__ doesn't need a
       # ProblemReporter
-      problems = problems_module.default_problem_reporter
+      problems = default_problem_reporter
     stoptime = self.GetGtfsFactory().StopTime(
         problems=problems, stop=stop, **kwargs)
     self.AddStopTimeObject(stoptime, schedule)
@@ -103,7 +105,7 @@ class Trip(GtfsObjectBase):
                    "stop_sequence=? and stop_id=?",
                    (self.trip_id, stoptime.stop_sequence, stoptime.stop_id))
     if cursor.rowcount == 0:
-      raise problems_module.Error('Attempted replacement of StopTime object which does not exist')
+      raise transitfeed.problems.Error('Attempted replacement of StopTime object which does not exist')
     self._AddStopTimeObjectUnordered(stoptime, schedule)
 
   def AddStopTimeObject(self, stoptime, schedule=None, problems=None):
@@ -145,10 +147,10 @@ class Trip(GtfsObjectBase):
       if new_secs != None and new_secs < prev_secs:
         problems.OtherProblem(
             'out of order stop time for stop_id=%s trip_id=%s %s < %s' %
-            (util.EncodeUnicode(stoptime.stop_id),
-             util.EncodeUnicode(self.trip_id),
-             util.FormatSecondsSinceMidnight(new_secs),
-             util.FormatSecondsSinceMidnight(prev_secs)))
+            (transitfeed.util.EncodeUnicode(stoptime.stop_id),
+             transitfeed.util.EncodeUnicode(self.trip_id),
+             transitfeed.util.FormatSecondsSinceMidnight(new_secs),
+             transitfeed.util.FormatSecondsSinceMidnight(prev_secs)))
     self._AddStopTimeObjectUnordered(stoptime, schedule)
 
   def GetTimeStops(self):
@@ -199,14 +201,14 @@ class Trip(GtfsObjectBase):
         distance_traveled_between_timepoints = 0
         if i + 1 < len(stoptimes):
           k = i + 1
-          distance_between_timepoints += util.ApproximateDistanceBetweenStops(stoptimes[k-1].stop, stoptimes[k].stop)
+          distance_between_timepoints += transitfeed.util.ApproximateDistanceBetweenStops(stoptimes[k-1].stop, stoptimes[k].stop)
           while stoptimes[k].GetTimeSecs() == None:
             k += 1
-            distance_between_timepoints += util.ApproximateDistanceBetweenStops(stoptimes[k-1].stop, stoptimes[k].stop)
+            distance_between_timepoints += transitfeed.util.ApproximateDistanceBetweenStops(stoptimes[k-1].stop, stoptimes[k].stop)
           next_timepoint = stoptimes[k]
         rv.append( (st.GetTimeSecs(), st, True) )
       else:
-        distance_traveled_between_timepoints += util.ApproximateDistanceBetweenStops(stoptimes[i-1].stop, st.stop)
+        distance_traveled_between_timepoints += transitfeed.util.ApproximateDistanceBetweenStops(stoptimes[i-1].stop, st.stop)
         distance_percent = distance_traveled_between_timepoints / distance_between_timepoints
         total_time = next_timepoint.GetTimeSecs() - cur_timepoint.GetTimeSecs()
         time_estimate = distance_percent * total_time + cur_timepoint.GetTimeSecs()
@@ -239,7 +241,7 @@ class Trip(GtfsObjectBase):
     if problems is None:
       # TODO: delete this branch when StopTime.__init__ doesn't need a
       # ProblemReporter
-      problems = problems_module.default_problem_reporter
+      problems = default_problem_reporter
     for row in cursor.fetchall():
       stop = self._schedule.GetStop(row[6])
       stop_times.append(stoptime_class(problems=problems,
@@ -299,7 +301,7 @@ class Trip(GtfsObjectBase):
       stoptimes_list.append ( stoptimes )
     return stoptimes_list
 
-  def GetStartTime(self, problems=problems_module.default_problem_reporter):
+  def GetStartTime(self, problems=default_problem_reporter):
     """Return the first time of the trip. TODO: For trips defined by frequency
     return the first time of the first trip."""
     cursor = self._schedule._connection.cursor()
@@ -341,7 +343,7 @@ class Trip(GtfsObjectBase):
         run_secs += headway_secs
     return start_times
 
-  def GetEndTime(self, problems=problems_module.default_problem_reporter):
+  def GetEndTime(self, problems=default_problem_reporter):
     """Return the last time of the trip. TODO: For trips defined by frequency
     return the last time of the last trip."""
     cursor = self._schedule._connection.cursor()
@@ -392,7 +394,7 @@ class Trip(GtfsObjectBase):
                         problem_reporter)
 
   def AddHeadwayPeriod(self, start_time, end_time, headway_secs,
-      problem_reporter=problems_module.default_problem_reporter):
+      problem_reporter=default_problem_reporter):
     """Deprecated. Please use AddFrequency instead."""
     warnings.warn("No longer supported. The HeadwayPeriod class was renamed to "
                   "Frequency, and all related functions were renamed "
@@ -400,7 +402,7 @@ class Trip(GtfsObjectBase):
     self.AddFrequency(start_time, end_time, headway_secs, problem_reporter)
 
   def AddFrequency(self, start_time, end_time, headway_secs, exact_times=0,
-      problem_reporter=problems_module.default_problem_reporter):
+      problem_reporter=default_problem_reporter):
     """Adds a period to this trip during which the vehicle travels
     at regular intervals (rather than specifying exact times for each stop).
 
@@ -424,8 +426,8 @@ class Trip(GtfsObjectBase):
       return
     if isinstance(start_time, basestring):
       try:
-        start_time = util.TimeToSecondsSinceMidnight(start_time)
-      except problems_module.Error:
+        start_time = transitfeed.util.TimeToSecondsSinceMidnight(start_time)
+      except transitfeed.problems.Error:
         problem_reporter.InvalidValue('start_time', start_time)
         return
     elif start_time < 0:
@@ -436,8 +438,8 @@ class Trip(GtfsObjectBase):
       return
     if isinstance(end_time, basestring):
       try:
-        end_time = util.TimeToSecondsSinceMidnight(end_time)
-      except problems_module.Error:
+        end_time = transitfeed.util.TimeToSecondsSinceMidnight(end_time)
+      except transitfeed.problems.Error:
         problem_reporter.InvalidValue('end_time', end_time)
         return
     elif end_time < 0:
@@ -474,8 +476,8 @@ class Trip(GtfsObjectBase):
 
   def _HeadwayOutputTuple(self, headway):
       return (self.trip_id,
-              util.FormatSecondsSinceMidnight(headway[0]),
-              util.FormatSecondsSinceMidnight(headway[1]),
+              transitfeed.util.FormatSecondsSinceMidnight(headway[0]),
+              transitfeed.util.FormatSecondsSinceMidnight(headway[1]),
               unicode(headway[2]),
               unicode(headway[3]))
 
@@ -500,7 +502,7 @@ class Trip(GtfsObjectBase):
       return GtfsObjectBase.__getattr__(self, name)
 
   def ValidateRouteId(self, problems):
-    if util.IsEmpty(self.route_id):
+    if transitfeed.util.IsEmpty(self.route_id):
       problems.MissingValue('route_id')
 
   def ValidateServicePeriod(self, problems):
@@ -509,15 +511,15 @@ class Trip(GtfsObjectBase):
       # proceeding with validation. See also comment in Trip.__init__.
       self.service_id = self.__dict__['service_period'].service_id
       del self.service_period
-    if util.IsEmpty(self.service_id):
+    if transitfeed.util.IsEmpty(self.service_id):
       problems.MissingValue('service_id')
 
   def ValidateTripId(self, problems):
-    if util.IsEmpty(self.trip_id):
+    if transitfeed.util.IsEmpty(self.trip_id):
       problems.MissingValue('trip_id')
 
   def ValidateDirectionId(self, problems):
-    if hasattr(self, 'direction_id') and (not util.IsEmpty(self.direction_id)) \
+    if hasattr(self, 'direction_id') and (not transitfeed.util.IsEmpty(self.direction_id)) \
         and (self.direction_id != '0') and (self.direction_id != '1'):
       problems.InvalidValue('direction_id', self.direction_id,
                             'direction_id must be "0" or "1"')
@@ -540,11 +542,11 @@ class Trip(GtfsObjectBase):
 
   def ValidateBikesAllowed(self, problems):
     if self.bikes_allowed:
-      util.ValidateYesNoUnknown(self.bikes_allowed, 'bikes_allowed', problems)
+      transitfeed.util.ValidateYesNoUnknown(self.bikes_allowed, 'bikes_allowed', problems)
 
   def ValidateWheelchairAccessible(self, problems):
     if self.wheelchair_accessible:
-      util.ValidateYesNoUnknown(
+      transitfeed.util.ValidateYesNoUnknown(
           self.wheelchair_accessible, 'wheelchair_accessible', problems)
 
   def Validate(self, problems, validate_children=True):
@@ -617,9 +619,9 @@ class Trip(GtfsObjectBase):
             prev_distance = distance
           else:
             if distance == prev_distance:
-              type = problems_module.TYPE_WARNING
+              type = transitfeed.problems.TYPE_WARNING
             else:
-              type = problems_module.TYPE_ERROR
+              type = transitfeed.problems.TYPE_ERROR
             problems.InvalidValue('stoptimes.shape_dist_traveled', distance,
                   'For the trip %s the stop %s has shape_dist_traveled=%s, '
                   'which should be larger than the previous ones. In this '
@@ -657,7 +659,7 @@ class Trip(GtfsObjectBase):
               'shape (shape_id=%s)' %
               (self.trip_id, st.stop_sequence, st.shape_dist_traveled,
                max_shape_dist, self.shape_id),
-               type=problems_module.TYPE_WARNING)
+               type=transitfeed.problems.TYPE_WARNING)
 
   def ValidateDistanceFromStopToShape(self, problems, stoptimes):
     if stoptimes:
@@ -674,14 +676,14 @@ class Trip(GtfsObjectBase):
             if pt:
               stop = self._schedule.GetStop(st.stop_id)
               if stop.stop_lat and stop.stop_lon:
-                distance = util.ApproximateDistance(stop.stop_lat,
+                distance = transitfeed.util.ApproximateDistance(stop.stop_lat,
                                                     stop.stop_lon,
                                                     pt[0], pt[1])
-                if distance > problems_module.MAX_DISTANCE_FROM_STOP_TO_SHAPE:
+                if distance > transitfeed.problems.MAX_DISTANCE_FROM_STOP_TO_SHAPE:
                   problems.StopTooFarFromShapeWithDistTraveled(
                       self.trip_id, stop.stop_name, stop.stop_id, pt[2],
                       self.shape_id, distance,
-                      problems_module.MAX_DISTANCE_FROM_STOP_TO_SHAPE)
+                      transitfeed.problems.MAX_DISTANCE_FROM_STOP_TO_SHAPE)
 
   def ValidateFrequencies(self, problems):
     # O(n^2), but we don't anticipate many headway periods per trip
@@ -725,7 +727,7 @@ class Trip(GtfsObjectBase):
         return
 
       dist_between_stops = \
-        util.ApproximateDistanceBetweenStops(next_stop, prev_stop)
+        transitfeed.util.ApproximateDistanceBetweenStops(next_stop, prev_stop)
       if dist_between_stops is None:
         return
 
@@ -744,7 +746,7 @@ class Trip(GtfsObjectBase):
                                  dist_between_stops,
                                  time_between_stops,
                                  speed=None,
-                                 type=problems_module.TYPE_WARNING)
+                                 type=transitfeed.problems.TYPE_WARNING)
         return
       # This needs floating point division for precision.
       speed_between_stops = ((float(dist_between_stops) / 1000) /
@@ -756,7 +758,7 @@ class Trip(GtfsObjectBase):
                                dist_between_stops,
                                time_between_stops,
                                speed_between_stops,
-                               type=problems_module.TYPE_WARNING)
+                               type=transitfeed.problems.TYPE_WARNING)
 
   def AddToSchedule(self, schedule, problems):
     schedule.AddTripObject(self, problems)
