@@ -39,10 +39,10 @@ import warnings
 import weakref
 import zipfile
 
-import gtfsfactory
-import problems as problems_module
+import transitfeed.gtfsfactory
+import transitfeed.problems as problems_module
 from transitfeed.util import defaultdict
-import util
+import transitfeed.util
 
 class Schedule(object):
   """Represents a Schedule, a collection of stops, routes, trips and
@@ -52,7 +52,7 @@ class Schedule(object):
                memory_db=True, check_duplicate_trips=False,
                gtfs_factory=None):
     if gtfs_factory is None:
-      gtfs_factory = gtfsfactory.GetGtfsFactory()
+      gtfs_factory = transitfeed.gtfsfactory.GetGtfsFactory()
     self._gtfs_factory = gtfs_factory
 
     # Map from table name to list of columns present in this schedule
@@ -195,7 +195,7 @@ class Schedule(object):
     """Create a new Agency object and make it the default agency for this Schedule"""
     agency = self._gtfs_factory.Agency(**kwargs)
     if not agency.agency_id:
-      agency.agency_id = util.FindUniqueId(self._agencies)
+      agency.agency_id = transitfeed.util.FindUniqueId(self._agencies)
     self._default_agency = agency
     self.SetDefaultAgency(agency, validate=False)  # Blank agency won't validate
     return agency
@@ -233,7 +233,7 @@ class Schedule(object):
     return it. The default service period is used when you create a trip without
     providing an explict service period. """
     service_period = self._gtfs_factory.ServicePeriod()
-    service_period.service_id = util.FindUniqueId(self.service_periods)
+    service_period.service_id = transitfeed.util.FindUniqueId(self.service_periods)
     # blank service won't validate in AddServicePeriodObject
     self.SetDefaultServicePeriod(service_period, validate=False)
     return service_period
@@ -347,7 +347,7 @@ class Schedule(object):
       A new Stop object
     """
     if stop_id is None:
-      stop_id = util.FindUniqueId(self.stops)
+      stop_id = transitfeed.util.FindUniqueId(self.stops)
     stop = self._gtfs_factory.Stop(stop_id=stop_id, lat=lat, lng=lng, name=name)
     self.AddStopObject(stop)
     return stop
@@ -386,7 +386,7 @@ class Schedule(object):
       A new Route object
     """
     if route_id is None:
-      route_id = util.FindUniqueId(self.routes)
+      route_id = transitfeed.util.FindUniqueId(self.routes)
     route = self._gtfs_factory.Route(short_name=short_name, long_name=long_name,
                         route_type=route_type, route_id=route_id)
     route.agency_id = self.GetDefaultAgency().agency_id
@@ -511,7 +511,7 @@ class Schedule(object):
     if not problem_reporter:
       problem_reporter = self.problem_reporter
 
-    if util.IsEmpty(rule.fare_id):
+    if transitfeed.util.IsEmpty(rule.fare_id):
       problem_reporter.MissingValue('fare_id')
       return
 
@@ -582,7 +582,7 @@ class Schedule(object):
     """Return the n nearest stops to lat,lon"""
     dist_stop_list = []
     for s in self.stops.values():
-      # TODO: Use util.ApproximateDistanceBetweenStops?
+      # TODO: Use transitfeed.util.ApproximateDistanceBetweenStops?
       dist = (s.stop_lat - lat)**2 + (s.stop_lon - lon)**2
       if len(dist_stop_list) < n:
         bisect.insort(dist_stop_list, (dist, s))
@@ -631,24 +631,24 @@ class Schedule(object):
 
     if 'agency' in self._table_columns:
       agency_string = StringIO()
-      writer = util.CsvUnicodeWriter(agency_string)
+      writer = transitfeed.util.CsvUnicodeWriter(agency_string)
       columns = self.GetTableColumns('agency')
       writer.writerow(columns)
       for a in self._agencies.values():
-        writer.writerow([util.EncodeUnicode(a[c]) for c in columns])
+        writer.writerow([transitfeed.util.EncodeUnicode(a[c]) for c in columns])
       self._WriteArchiveString(archive, 'agency.txt', agency_string)
 
 
     if 'feed_info' in self._table_columns:
       feed_info_string = StringIO()
-      writer = util.CsvUnicodeWriter(feed_info_string)
+      writer = transitfeed.util.CsvUnicodeWriter(feed_info_string)
       columns = self.GetTableColumns('feed_info')
       writer.writerow(columns)
-      writer.writerow([util.EncodeUnicode(self.feed_info[c]) for c in columns])
+      writer.writerow([transitfeed.util.EncodeUnicode(self.feed_info[c]) for c in columns])
       self._WriteArchiveString(archive, 'feed_info.txt', feed_info_string)
 
     calendar_dates_string = StringIO()
-    writer = util.CsvUnicodeWriter(calendar_dates_string)
+    writer = transitfeed.util.CsvUnicodeWriter(calendar_dates_string)
     writer.writerow(
         self._gtfs_factory.ServicePeriod._FIELD_NAMES_CALENDAR_DATES)
     has_data = False
@@ -663,7 +663,7 @@ class Schedule(object):
                                calendar_dates_string)
 
     calendar_string = StringIO()
-    writer = util.CsvUnicodeWriter(calendar_string)
+    writer = transitfeed.util.CsvUnicodeWriter(calendar_string)
     writer.writerow(self._gtfs_factory.ServicePeriod._FIELD_NAMES)
     has_data = False
     for s in self.service_periods.values():
@@ -676,29 +676,29 @@ class Schedule(object):
 
     if 'stops' in self._table_columns:
       stop_string = StringIO()
-      writer = util.CsvUnicodeWriter(stop_string)
+      writer = transitfeed.util.CsvUnicodeWriter(stop_string)
       columns = self.GetTableColumns('stops')
       writer.writerow(columns)
       for s in self.stops.values():
-        writer.writerow([util.EncodeUnicode(s[c]) for c in columns])
+        writer.writerow([transitfeed.util.EncodeUnicode(s[c]) for c in columns])
       self._WriteArchiveString(archive, 'stops.txt', stop_string)
 
     if 'routes' in self._table_columns:
       route_string = StringIO()
-      writer = util.CsvUnicodeWriter(route_string)
+      writer = transitfeed.util.CsvUnicodeWriter(route_string)
       columns = self.GetTableColumns('routes')
       writer.writerow(columns)
       for r in self.routes.values():
-        writer.writerow([util.EncodeUnicode(r[c]) for c in columns])
+        writer.writerow([transitfeed.util.EncodeUnicode(r[c]) for c in columns])
       self._WriteArchiveString(archive, 'routes.txt', route_string)
 
     if 'trips' in self._table_columns:
       trips_string = StringIO()
-      writer = util.CsvUnicodeWriter(trips_string)
+      writer = transitfeed.util.CsvUnicodeWriter(trips_string)
       columns = self.GetTableColumns('trips')
       writer.writerow(columns)
       for t in self.trips.values():
-        writer.writerow([util.EncodeUnicode(t[c]) for c in columns])
+        writer.writerow([transitfeed.util.EncodeUnicode(t[c]) for c in columns])
       self._WriteArchiveString(archive, 'trips.txt', trips_string)
 
     # write frequencies.txt (if applicable)
@@ -707,7 +707,7 @@ class Schedule(object):
       headway_rows += trip.GetFrequencyOutputTuples()
     if headway_rows:
       headway_string = StringIO()
-      writer = util.CsvUnicodeWriter(headway_string)
+      writer = transitfeed.util.CsvUnicodeWriter(headway_string)
       writer.writerow(self._gtfs_factory.Frequency._FIELD_NAMES)
       writer.writerows(headway_rows)
       self._WriteArchiveString(archive, 'frequencies.txt', headway_string)
@@ -715,7 +715,7 @@ class Schedule(object):
     # write fares (if applicable)
     if self.GetFareAttributeList():
       fare_string = StringIO()
-      writer = util.CsvUnicodeWriter(fare_string)
+      writer = transitfeed.util.CsvUnicodeWriter(fare_string)
       writer.writerow(self._gtfs_factory.FareAttribute._FIELD_NAMES)
       writer.writerows(
           f.GetFieldValuesTuple() for f in self.GetFareAttributeList())
@@ -728,12 +728,12 @@ class Schedule(object):
         rule_rows.append(rule.GetFieldValuesTuple())
     if rule_rows:
       rule_string = StringIO()
-      writer = util.CsvUnicodeWriter(rule_string)
+      writer = transitfeed.util.CsvUnicodeWriter(rule_string)
       writer.writerow(self._gtfs_factory.FareRule._FIELD_NAMES)
       writer.writerows(rule_rows)
       self._WriteArchiveString(archive, 'fare_rules.txt', rule_string)
     stop_times_string = StringIO()
-    writer = util.CsvUnicodeWriter(stop_times_string)
+    writer = transitfeed.util.CsvUnicodeWriter(stop_times_string)
     writer.writerow(self._gtfs_factory.StopTime._FIELD_NAMES)
     for t in self.trips.values():
       writer.writerows(t._GenerateStopTimesTuples())
@@ -748,18 +748,18 @@ class Schedule(object):
         seq += 1
     if shape_rows:
       shape_string = StringIO()
-      writer = util.CsvUnicodeWriter(shape_string)
+      writer = transitfeed.util.CsvUnicodeWriter(shape_string)
       writer.writerow(self._gtfs_factory.Shape._FIELD_NAMES)
       writer.writerows(shape_rows)
       self._WriteArchiveString(archive, 'shapes.txt', shape_string)
 
     if 'transfers' in self._table_columns:
       transfer_string = StringIO()
-      writer = util.CsvUnicodeWriter(transfer_string)
+      writer = transitfeed.util.CsvUnicodeWriter(transfer_string)
       columns = self.GetTableColumns('transfers')
       writer.writerow(columns)
       for t in self.GetTransferIter():
-        writer.writerow([util.EncodeUnicode(t[c]) for c in columns])
+        writer.writerow([transitfeed.util.EncodeUnicode(t[c]) for c in columns])
       self._WriteArchiveString(archive, 'transfers.txt', transfer_string)
 
     archive.close()
@@ -816,7 +816,7 @@ class Schedule(object):
       return
     agencies = self.GetAgencyList()
     for agency in agencies:
-      if not util.IsEmpty(agency.agency_lang) and (
+      if not transitfeed.util.IsEmpty(agency.agency_lang) and (
           not self.feed_info.feed_lang == agency.agency_lang):
         problems.InvalidValue("feed_lang",
                               "The languages specified in feedinfo.txt and in "
@@ -993,21 +993,21 @@ class Schedule(object):
       if stop.location_type != 1 and stop.parent_station:
         if stop.parent_station not in self.stops:
           problems.InvalidValue("parent_station",
-                                util.EncodeUnicode(stop.parent_station),
+                                transitfeed.util.EncodeUnicode(stop.parent_station),
                                 "parent_station '%s' not found for stop_id "
                                 "'%s' in stops.txt" %
-                                (util.EncodeUnicode(stop.parent_station),
-                                 util.EncodeUnicode(stop.stop_id)))
+                                (transitfeed.util.EncodeUnicode(stop.parent_station),
+                                 transitfeed.util.EncodeUnicode(stop.stop_id)))
         elif self.stops[stop.parent_station].location_type != 1:
           problems.InvalidValue("parent_station",
-                                util.EncodeUnicode(stop.parent_station),
+                                transitfeed.util.EncodeUnicode(stop.parent_station),
                                 "parent_station '%s' of stop_id '%s' must "
                                 "have location_type=1 in stops.txt" %
-                                (util.EncodeUnicode(stop.parent_station),
-                                 util.EncodeUnicode(stop.stop_id)))
+                                (transitfeed.util.EncodeUnicode(stop.parent_station),
+                                 transitfeed.util.EncodeUnicode(stop.stop_id)))
         else:
           parent_station = self.stops[stop.parent_station]
-          distance = util.ApproximateDistanceBetweenStops(stop, parent_station)
+          distance = transitfeed.util.ApproximateDistanceBetweenStops(stop, parent_station)
           if distance is not None:
             if distance > problems_module.MAX_DISTANCE_BETWEEN_STOP_AND_PARENT_STATION_ERROR:
               problems.StopTooFarFromParentStation(
@@ -1035,22 +1035,22 @@ class Schedule(object):
       index += 1
       while ((index < len(sorted_stops)) and
              ((sorted_stops[index].stop_lat - stop.stop_lat) < TWO_METERS_LAT)):
-        distance  = util.ApproximateDistanceBetweenStops(stop,
+        distance  = transitfeed.util.ApproximateDistanceBetweenStops(stop,
                                                          sorted_stops[index])
         if distance is not None and distance < 2:
           other_stop = sorted_stops[index]
           if stop.location_type == 0 and other_stop.location_type == 0:
             problems.StopsTooClose(
-                util.EncodeUnicode(stop.stop_name),
-                util.EncodeUnicode(stop.stop_id),
-                util.EncodeUnicode(other_stop.stop_name),
-                util.EncodeUnicode(other_stop.stop_id), distance)
+                transitfeed.util.EncodeUnicode(stop.stop_name),
+                transitfeed.util.EncodeUnicode(stop.stop_id),
+                transitfeed.util.EncodeUnicode(other_stop.stop_name),
+                transitfeed.util.EncodeUnicode(other_stop.stop_id), distance)
           elif stop.location_type == 1 and other_stop.location_type == 1:
             problems.StationsTooClose(
-                util.EncodeUnicode(stop.stop_name),
-                util.EncodeUnicode(stop.stop_id),
-                util.EncodeUnicode(other_stop.stop_name),
-                util.EncodeUnicode(other_stop.stop_id), distance)
+                transitfeed.util.EncodeUnicode(stop.stop_name),
+                transitfeed.util.EncodeUnicode(stop.stop_id),
+                transitfeed.util.EncodeUnicode(other_stop.stop_name),
+                transitfeed.util.EncodeUnicode(other_stop.stop_id), distance)
           elif (stop.location_type in (0, 1) and
                 other_stop.location_type  in (0, 1)):
             if stop.location_type == 0 and other_stop.location_type == 1:
@@ -1061,10 +1061,10 @@ class Schedule(object):
               this_station = stop
             if this_stop.parent_station != this_station.stop_id:
               problems.DifferentStationTooClose(
-                  util.EncodeUnicode(this_stop.stop_name),
-                  util.EncodeUnicode(this_stop.stop_id),
-                  util.EncodeUnicode(this_station.stop_name),
-                  util.EncodeUnicode(this_station.stop_id), distance)
+                  transitfeed.util.EncodeUnicode(this_stop.stop_name),
+                  transitfeed.util.EncodeUnicode(this_stop.stop_id),
+                  transitfeed.util.EncodeUnicode(this_station.stop_name),
+                  transitfeed.util.EncodeUnicode(this_station.stop_id), distance)
         index += 1
 
   def ValidateRouteNames(self, problems, validate_children):
@@ -1074,10 +1074,10 @@ class Schedule(object):
       if validate_children:
         route.Validate(problems)
       short_name = ''
-      if not util.IsEmpty(route.route_short_name):
+      if not transitfeed.util.IsEmpty(route.route_short_name):
         short_name = route.route_short_name.lower().strip()
       long_name = ''
-      if not util.IsEmpty(route.route_long_name):
+      if not transitfeed.util.IsEmpty(route.route_long_name):
         long_name = route.route_long_name.lower().strip()
       name = (short_name, long_name)
       if name in route_names:
@@ -1130,7 +1130,7 @@ class Schedule(object):
                                                 subway_route_id, bus_route_id)
 
       # We only care about trips with a block id
-      if not util.IsEmpty(trip.block_id) and stop_times:
+      if not transitfeed.util.IsEmpty(trip.block_id) and stop_times:
 
         first_arrival_secs = stop_times[0].arrival_secs
         last_departure_secs = stop_times[-1].departure_secs
@@ -1278,7 +1278,7 @@ class Schedule(object):
   def ValidateRouteAgencyId(self, problems):
     # Check that routes' agency IDs are valid, if set
     for route in self.routes.values():
-      if (not util.IsEmpty(route.agency_id) and
+      if (not transitfeed.util.IsEmpty(route.agency_id) and
           not route.agency_id in self._agencies):
         problems.InvalidAgencyID('agency_id', route.agency_id,
                                  'route', route.route_id)
