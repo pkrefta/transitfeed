@@ -21,9 +21,9 @@ import os
 import re
 import zipfile
 
-import gtfsfactory as gtfsfactory_module
-import problems
-import util
+import transitfeed.gtfsfactory
+from transitfeed import problems
+import transitfeed.util
 
 class Loader:
   def __init__(self,
@@ -51,7 +51,7 @@ class Loader:
       zip: a zipfile.ZipFile object, optionally used instead of path
     """
     if gtfs_factory is None:
-      gtfs_factory = gtfsfactory_module.GetGtfsFactory()
+      gtfs_factory = transitfeed.gtfsfactory.GetGtfsFactory()
 
     if not schedule:
       schedule = gtfs_factory.Schedule(problem_reporter=problems,
@@ -151,7 +151,7 @@ class Loader:
     if not contents:
       return
 
-    eol_checker = util.EndOfLineChecker(StringIO(contents),
+    eol_checker = transitfeed.util.EndOfLineChecker(StringIO(contents),
                                    file_name, self._problems)
     # The csv module doesn't provide a way to skip trailing space, but when I
     # checked 15/675 feeds had trailing space in a header row and 120 had spaces
@@ -161,7 +161,7 @@ class Loader:
     reader = csv.reader(eol_checker, skipinitialspace=True)
 
     raw_header = reader.next()
-    header_occurrences = util.defaultdict(lambda: 0)
+    header_occurrences = transitfeed.util.defaultdict(lambda: 0)
     header = []
     valid_columns = []  # Index into raw_header and raw_row
     for i, h in enumerate(raw_header):
@@ -286,13 +286,13 @@ class Loader:
     if not contents:
       return
 
-    eol_checker = util.EndOfLineChecker(StringIO(contents),
+    eol_checker = transitfeed.util.EndOfLineChecker(StringIO(contents),
                                    file_name, self._problems)
     reader = csv.reader(eol_checker)  # Use excel dialect
 
     header = reader.next()
     header = map(lambda x: x.strip(), header)  # trim any whitespace
-    header_occurrences = util.defaultdict(lambda: 0)
+    header_occurrences = transitfeed.util.defaultdict(lambda: 0)
     for column_header in header:
       header_occurrences[column_header] += 1
 
