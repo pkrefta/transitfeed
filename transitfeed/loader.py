@@ -15,7 +15,7 @@
 # limitations under the License.
 
 import codecs
-import cStringIO as StringIO
+from six import StringIO
 import csv
 import os
 import re
@@ -151,7 +151,7 @@ class Loader:
     if not contents:
       return
 
-    eol_checker = util.EndOfLineChecker(StringIO.StringIO(contents),
+    eol_checker = util.EndOfLineChecker(StringIO(contents),
                                    file_name, self._problems)
     # The csv module doesn't provide a way to skip trailing space, but when I
     # checked 15/675 feeds had trailing space in a header row and 120 had spaces
@@ -286,7 +286,7 @@ class Loader:
     if not contents:
       return
 
-    eol_checker = util.EndOfLineChecker(StringIO.StringIO(contents),
+    eol_checker = util.EndOfLineChecker(StringIO(contents),
                                    file_name, self._problems)
     reader = csv.reader(eol_checker)  # Use excel dialect
 
