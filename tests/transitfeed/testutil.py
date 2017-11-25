@@ -23,7 +23,7 @@ except ImportError:
 
 import datetime
 import re
-import StringIO
+from six import StringIO
 import tests.util as test_util
 from transitfeed import problems
 from transitfeed.problems import ProblemReporter
@@ -31,7 +31,12 @@ from transitfeed import stop
 from transitfeed import util
 from transitfeed import version
 import unittest
-from urllib2 import HTTPError, URLError
+try:
+    from urllib.request import urlopen, Request
+    from urllib.error import HTTPError, URLError
+except ImportError:
+    from urllib2 import urlopen, Request, HTTPError, URLError
+
 import urllib2
 
 
@@ -281,7 +286,7 @@ class CheckVersionTestCase(test_util.TempDirTestCaseBase):
 
   @mock.patch('transitfeed.util.urlopen')
   def testGetCorrectReturns(self, mock_urlopen):
-    mock_urlopen.return_value = StringIO.StringIO('latest_version=100.0.1')
+    mock_urlopen.return_value = StringIO('latest_version=100.0.1')
     util.CheckVersion(self.problems)
     self.accumulator.PopException('NewVersionAvailable')
 
@@ -320,7 +325,7 @@ class CheckVersionTestCase(test_util.TempDirTestCaseBase):
 class MockURLOpen:
   """Pretend to be a urllib2.urlopen suitable for testing."""
   def mockedConnectSuccess(self, request):
-    return StringIO.StringIO('latest_version=100.0.1')
+    return StringIO('latest_version=100.0.1')
 
   def mockedPageNotFound(self, request):
     raise HTTPError(request.get_full_url(), 404, 'Not Found',
@@ -333,7 +338,7 @@ class MockURLOpen:
     raise URLError('Getaddrinfo failed')
 
   def mockedEmptyIsReturned(self, request):
-    return StringIO.StringIO()
+    return StringIO()
 
 
 if __name__ == '__main__':
