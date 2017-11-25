@@ -38,8 +38,8 @@ class GtfsFactoryUser(object):
       #            This is why the import is here and not at the top level.
       #            When this runs, gtfsfactory should have already been loaded
       #            by other modules, avoiding the circular imports.
-      import gtfsfactory
-      self._gtfs_factory = gtfsfactory.GetGtfsFactory()
+      import transitfeed.gtfsfactory
+      self._gtfs_factory = transitfeed.gtfsfactory.GetGtfsFactory()
     return self._gtfs_factory
 
   def SetGtfsFactory(self, factory):
