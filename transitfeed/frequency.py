@@ -14,8 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from gtfsobjectbase import GtfsObjectBase
-import util
+from transitfeed.gtfsobjectbase import GtfsObjectBase
+import transitfeed.util
 
 class Frequency(GtfsObjectBase):
     """This class represents a period of a trip during which the vehicle travels
@@ -51,7 +51,7 @@ class Frequency(GtfsObjectBase):
       return self.exact_times
 
     def ValidateExactTimes(self, problems):
-      if util.IsEmpty(self.exact_times):
+      if transitfeed.util.IsEmpty(self.exact_times):
         self.exact_times = 0
         return
       try:

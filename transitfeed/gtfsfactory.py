@@ -14,22 +14,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from agency import Agency
-from fareattribute import FareAttribute
-from farerule import FareRule
-from feedinfo import FeedInfo
-from frequency import Frequency
-from loader import Loader
-import problems
-from route import Route
-from schedule import Schedule
-from serviceperiod import ServicePeriod
-from shape import Shape
-from shapepoint import ShapePoint
-from stop import Stop
-from stoptime import StopTime
-from transfer import Transfer
-from trip import Trip
+from transitfeed.agency import Agency
+from transitfeed.fareattribute import FareAttribute
+from transitfeed.farerule import FareRule
+from transitfeed.feedinfo import FeedInfo
+from transitfeed.frequency import Frequency
+from transitfeed.loader import Loader
+import transitfeed.problems
+from transitfeed.route import Route
+from transitfeed.schedule import Schedule
+from transitfeed.serviceperiod import ServicePeriod
+from transitfeed.shape import Shape
+from transitfeed.shapepoint import ShapePoint
+from transitfeed.stop import Stop
+from transitfeed.stoptime import StopTime
+from transitfeed.transfer import Transfer
+from transitfeed.trip import Trip
 
 class GtfsFactory(object):
   """A factory for the default GTFS objects"""
@@ -119,7 +119,7 @@ class GtfsFactory(object):
     mapping = self._file_mapping[filename]
     class_list = mapping['classes']
     if len(class_list) > 1:
-      raise problems.NonStandardMapping(filename)
+      raise transitfeed.problems.NonStandardMapping(filename)
     else:
       return self._class_mapping[class_list[0]]
 
@@ -167,9 +167,9 @@ class GtfsFactory(object):
     """
     for field in self._REQUIRED_MAPPING_FIELDS:
       if field not in new_mapping:
-        raise problems.InvalidMapping(field)
+        raise transitfeed.problems.InvalidMapping(field)
     if filename in self.GetKnownFilenames():
-      raise problems.DuplicateMapping(filename)
+      raise transitfeed.problems.DuplicateMapping(filename)
     self._file_mapping[filename] = new_mapping
 
   def UpdateMapping(self, filename, mapping_update):
@@ -184,7 +184,7 @@ class GtfsFactory(object):
         InexistentMapping if the filename does not exist in the mapping
     """
     if filename not in self._file_mapping:
-      raise problems.NonexistentMapping(filename)
+      raise transitfeed.problems.NonexistentMapping(filename)
     mapping = self._file_mapping[filename]
     mapping.update(mapping_update)
 
@@ -199,7 +199,7 @@ class GtfsFactory(object):
         DuplicateMapping if class_name is already present in the class mapping.
     """
     if class_name in self._class_mapping:
-      raise problems.DuplicateMapping(class_name)
+      raise transitfeed.problems.DuplicateMapping(class_name)
     self._class_mapping[class_name] = gtfs_class
 
   def UpdateClass(self, class_name, gtfs_class):
@@ -212,7 +212,7 @@ class GtfsFactory(object):
         NonexistentMapping if there is no class with the specified class_name.
     """
     if class_name not in self._class_mapping:
-      raise problems.NonexistentMapping(class_name)
+      raise transitfeed.problems.NonexistentMapping(class_name)
     self._class_mapping[class_name] = gtfs_class
 
   def RemoveClass(self, class_name):
@@ -224,11 +224,11 @@ class GtfsFactory(object):
         NonexistentMapping if there is no class with the specified class_name.
     """
     if class_name not in self._class_mapping:
-      raise problems.NonexistentMapping(class_name)
+      raise transitfeed.problems.NonexistentMapping(class_name)
     del self._class_mapping[class_name]
 
   def GetProblemReporter(self):
-    return problems.ProblemReporter()
+    return transitfeed.problems.ProblemReporter()
 
 def GetGtfsFactory():
   """Called by FeedValidator to retrieve this extension's GtfsFactory.
