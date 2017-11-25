@@ -18,8 +18,8 @@ import datetime
 import re
 import time
 
-import problems as problems_module
-import util
+import transitfeed.problems as problems_module
+import transitfeed.util
 
 class ServicePeriod(object):
   """Represents a service, which identifies a set of dates when one or more
@@ -212,7 +212,7 @@ class ServicePeriod(object):
     if (self.start_date and self.end_date and self.start_date <= date and
         date <= self.end_date):
       if date_object is None:
-        date_object = util.DateStringToDateObject(date)
+        date_object = transitfeed.util.DateStringToDateObject(date)
       return self.day_of_week[date_object.weekday()]
     return False
 
@@ -222,8 +222,8 @@ class ServicePeriod(object):
     if earliest is None:
       return []
     dates = []
-    date_it = util.DateStringToDateObject(earliest)
-    date_end = util.DateStringToDateObject(latest)
+    date_it = transitfeed.util.DateStringToDateObject(earliest)
+    date_end = transitfeed.util.DateStringToDateObject(latest)
     delta = datetime.timedelta(days=1)
     while date_it <= date_end:
       date_it_string = date_it.strftime("%Y%m%d")
@@ -267,7 +267,7 @@ class ServicePeriod(object):
     return not self.__eq__(other)
 
   def ValidateServiceId(self, problems):
-    if util.IsEmpty(self.service_id):
+    if transitfeed.util.IsEmpty(self.service_id):
       problems.MissingValue('service_id')
 
   def ValidateStartDate(self, problems):
@@ -290,7 +290,7 @@ class ServicePeriod(object):
       index = 0
       for value in self.original_day_values:
         column_name = self._DAYS_OF_WEEK[index]
-        if util.IsEmpty(value):
+        if transitfeed.util.IsEmpty(value):
           problems.MissingValue(column_name)
         elif (value != u'0') and (value != '1'):
           problems.InvalidValue(column_name, value)
@@ -320,10 +320,10 @@ class ServicePeriod(object):
       # calendar_dates.txt. In that case we have a ServicePeriod consisting
       # entirely of service exceptions, and with no start_date or end_date.
       return False
-    if util.IsEmpty(date):
+    if transitfeed.util.IsEmpty(date):
       problems.MissingValue(field_name, date, context)
       return False
-    elif not util.ValidateDate(date, field_name, problems):
+    elif not transitfeed.util.ValidateDate(date, field_name, problems):
       return False
     else:
       try:
