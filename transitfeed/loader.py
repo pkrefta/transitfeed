@@ -15,11 +15,13 @@
 # limitations under the License.
 
 import codecs
-from six import StringIO
 import csv
 import os
 import re
 import zipfile
+
+from six import StringIO
+from six import string_types
 
 import transitfeed.gtfsfactory
 from transitfeed import problems
@@ -73,7 +75,7 @@ class Loader:
       assert not self._path
       return True
 
-    if not isinstance(self._path, basestring) and hasattr(self._path, 'read'):
+    if not isinstance(self._path, string_types) and hasattr(self._path, 'read'):
       # A file-like object, used for testing with a StringIO file
       self._zip = zipfile.ZipFile(self._path, mode='r')
       return True

@@ -16,10 +16,11 @@
 
 import warnings
 
+from six import string_types, text_type
+
 from transitfeed.gtfsobjectbase import GtfsObjectBase
 from transitfeed.problems import default_problem_reporter
 import transitfeed.problems
-# import problems as problems_module
 import transitfeed.util
 
 class Trip(GtfsObjectBase):
@@ -424,7 +425,7 @@ class Trip(GtfsObjectBase):
     if start_time == None or start_time == '':  # 0 is OK
       problem_reporter.MissingValue('start_time')
       return
-    if isinstance(start_time, basestring):
+    if isinstance(start_time, string_types):
       try:
         start_time = transitfeed.util.TimeToSecondsSinceMidnight(start_time)
       except transitfeed.problems.Error:
@@ -436,7 +437,7 @@ class Trip(GtfsObjectBase):
     if end_time == None or end_time == '':
       problem_reporter.MissingValue('end_time')
       return
-    if isinstance(end_time, basestring):
+    if isinstance(end_time, string_types):
       try:
         end_time = transitfeed.util.TimeToSecondsSinceMidnight(end_time)
       except transitfeed.problems.Error:
@@ -478,8 +479,8 @@ class Trip(GtfsObjectBase):
       return (self.trip_id,
               transitfeed.util.FormatSecondsSinceMidnight(headway[0]),
               transitfeed.util.FormatSecondsSinceMidnight(headway[1]),
-              unicode(headway[2]),
-              unicode(headway[3]))
+              text_type(headway[2]),
+              text_type(headway[3]))
 
   def GetFrequencyOutputTuples(self):
     tuples = []
