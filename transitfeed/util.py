@@ -33,8 +33,8 @@ except ImportError:
     from urllib2 import urlopen, Request, HTTPError, URLError
 
 import transitfeed.problems as problems_module
-from trip import Trip
-from version import __version__
+from transitfeed.trip import Trip
+from transitfeed.version import __version__
 
 # URL which identifies the latest release version of the transitfeed library.
 LATEST_RELEASE_VERSION_URL = 'https://raw.githubusercontent.com/wiki/google/transitfeed/LatestReleaseVersion.md'
