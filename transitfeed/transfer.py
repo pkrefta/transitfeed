@@ -14,9 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from gtfsobjectbase import GtfsObjectBase
-import problems as problems_module
-import util
+from transitfeed.gtfsobjectbase import GtfsObjectBase
+import transitfeed.problems as problems_module
+import transitfeed.util
 
 class Transfer(GtfsObjectBase):
   """Represents a transfer in a schedule"""
@@ -41,13 +41,13 @@ class Transfer(GtfsObjectBase):
       self.transfer_type = 0
     else:
       try:
-        self.transfer_type = util.NonNegIntStringToInt(self.transfer_type)
+        self.transfer_type = transitfeed.util.NonNegIntStringToInt(self.transfer_type)
       except (TypeError, ValueError):
         pass
 
     if hasattr(self, 'min_transfer_time'):
       try:
-        self.min_transfer_time = util.NonNegIntStringToInt(self.min_transfer_time)
+        self.min_transfer_time = transitfeed.util.NonNegIntStringToInt(self.min_transfer_time)
       except (TypeError, ValueError):
         pass
     else:
@@ -59,19 +59,19 @@ class Transfer(GtfsObjectBase):
       schedule.AddTransferObject(self)
 
   def ValidateFromStopIdIsPresent(self, problems):
-    if util.IsEmpty(self.from_stop_id):
+    if transitfeed.util.IsEmpty(self.from_stop_id):
       problems.MissingValue('from_stop_id')
       return False
     return True
 
   def ValidateToStopIdIsPresent(self, problems):
-    if util.IsEmpty(self.to_stop_id):
+    if transitfeed.util.IsEmpty(self.to_stop_id):
       problems.MissingValue('to_stop_id')
       return False
     return True
 
   def ValidateTransferType(self, problems):
-    if not util.IsEmpty(self.transfer_type):
+    if not transitfeed.util.IsEmpty(self.transfer_type):
       if (not isinstance(self.transfer_type, int)) or \
           (self.transfer_type not in range(0, 4)):
         problems.InvalidValue('transfer_type', self.transfer_type)
@@ -79,7 +79,7 @@ class Transfer(GtfsObjectBase):
     return True
 
   def ValidateMinimumTransferTime(self, problems):
-    if not util.IsEmpty(self.min_transfer_time):
+    if not transitfeed.util.IsEmpty(self.min_transfer_time):
       if self.transfer_type != 2:
         problems.MinimumTransferTimeSetWithInvalidTransferType(
             self.transfer_type)
@@ -115,7 +115,7 @@ class Transfer(GtfsObjectBase):
   def GetTransferDistance(self):
     from_stop = self._schedule.stops[self.from_stop_id]
     to_stop = self._schedule.stops[self.to_stop_id]
-    distance = util.ApproximateDistanceBetweenStops(from_stop, to_stop)
+    distance = transitfeed.util.ApproximateDistanceBetweenStops(from_stop, to_stop)
     return distance
 
   def ValidateFromStopIdIsValid(self, problems):
@@ -144,7 +144,7 @@ class Transfer(GtfsObjectBase):
                                       type=problems_module.TYPE_WARNING)
 
   def ValidateTransferWalkingTime(self, problems):
-    if util.IsEmpty(self.min_transfer_time):
+    if transitfeed.util.IsEmpty(self.min_transfer_time):
       return
 
     if self.min_transfer_time < 0:

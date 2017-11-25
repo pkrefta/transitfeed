@@ -16,9 +16,9 @@
 
 import bisect
 
-from gtfsfactoryuser import GtfsFactoryUser
-import problems as problems_module
-import util
+from transitfeed.gtfsfactoryuser import GtfsFactoryUser
+import transitfeed.problems as problems_module
+import transitfeed.util
 
 class Shape(GtfsFactoryUser):
   """This class represents a geographic shape that corresponds to the route
@@ -113,7 +113,7 @@ class Shape(GtfsFactoryUser):
     return "<Shape %s>" % self.__dict__
 
   def ValidateShapeId(self, problems):
-    if util.IsEmpty(self.shape_id):
+    if transitfeed.util.IsEmpty(self.shape_id):
       problems.MissingValue('shape_id')
 
   def ValidateShapePoints(self, problems):
