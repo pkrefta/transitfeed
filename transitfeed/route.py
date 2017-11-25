@@ -14,9 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from gtfsobjectbase import GtfsObjectBase
-import problems as problems_module
-import util
+from transitfeed.gtfsobjectbase import GtfsObjectBase
+import transitfeed.problems as problems_module
+import transitfeed.util
 
 class Route(GtfsObjectBase):
   """Represents a single route."""
@@ -84,7 +84,7 @@ class Route(GtfsObjectBase):
       assert self._schedule is not None
       schedule = self._schedule
     if trip_id is None:
-      trip_id = util.FindUniqueId(schedule.trips)
+      trip_id = transitfeed.util.FindUniqueId(schedule.trips)
     if service_period is None:
       service_period = schedule.GetDefaultServicePeriod()
     trip_class = self.GetGtfsFactory().Trip
@@ -117,16 +117,16 @@ class Route(GtfsObjectBase):
     return d
 
   def ValidateRouteIdIsPresent(self, problems):
-    if util.IsEmpty(self.route_id):
+    if transitfeed.util.IsEmpty(self.route_id):
       problems.MissingValue('route_id')
 
   def ValidateRouteTypeIsPresent(self, problems):
-    if util.IsEmpty(self.route_type):
+    if transitfeed.util.IsEmpty(self.route_type):
       problems.MissingValue('route_type')
 
   def ValidateRouteShortAndLongNamesAreNotBlank(self, problems):
-    if util.IsEmpty(self.route_short_name) and \
-        util.IsEmpty(self.route_long_name):
+    if transitfeed.util.IsEmpty(self.route_short_name) and \
+        transitfeed.util.IsEmpty(self.route_long_name):
       problems.InvalidValue('route_short_name',
                             self.route_short_name,
                             'Both route_short_name and '
@@ -185,7 +185,7 @@ class Route(GtfsObjectBase):
     if self.route_type is not None:
       try:
         if not isinstance(self.route_type, int):
-          self.route_type = util.NonNegIntStringToInt(self.route_type, problems)
+          self.route_type = transitfeed.util.NonNegIntStringToInt(self.route_type, problems)
       except (TypeError, ValueError):
         problems.InvalidValue('route_type', self.route_type)
       else:
@@ -196,11 +196,11 @@ class Route(GtfsObjectBase):
 
   def ValidateRouteUrl(self, problems):
     if self.route_url:
-      util.ValidateURL(self.route_url, 'route_url', problems)
+      transitfeed.util.ValidateURL(self.route_url, 'route_url', problems)
 
   def ValidateRouteColor(self, problems):
     if self.route_color:
-      if not util.IsValidHexColor(self.route_color):
+      if not transitfeed.util.IsValidHexColor(self.route_color):
         problems.InvalidValue('route_color', self.route_color,
                               'route_color should be a valid color description '
                               'which consists of 6 hexadecimal characters '
@@ -209,7 +209,7 @@ class Route(GtfsObjectBase):
 
   def ValidateRouteTextColor(self, problems):
     if self.route_text_color:
-      if not util.IsValidHexColor(self.route_text_color):
+      if not transitfeed.util.IsValidHexColor(self.route_text_color):
         problems.InvalidValue('route_text_color', self.route_text_color,
                               'route_text_color should be a valid color '
                               'description, which consists of 6 hexadecimal '
@@ -219,13 +219,13 @@ class Route(GtfsObjectBase):
 
   def ValidateRouteAndTextColors(self, problems):
     if self.route_color:
-      bg_lum  = util.ColorLuminance(self.route_color)
+      bg_lum  = transitfeed.util.ColorLuminance(self.route_color)
     else:
-      bg_lum = util.ColorLuminance('ffffff')   # white (default)
+      bg_lum = transitfeed.util.ColorLuminance('ffffff')   # white (default)
     if self.route_text_color:
-      txt_lum = util.ColorLuminance(self.route_text_color)
+      txt_lum = transitfeed.util.ColorLuminance(self.route_text_color)
     else:
-      txt_lum = util.ColorLuminance('000000')  # black (default)
+      txt_lum = transitfeed.util.ColorLuminance('000000')  # black (default)
     if abs(txt_lum - bg_lum) < 510/7.:
       # http://www.w3.org/TR/2000/WD-AERT-20000426#color-contrast recommends
       # a threshold of 125, but that is for normal text and too harsh for
@@ -247,7 +247,7 @@ class Route(GtfsObjectBase):
 
   def ValidateBikesAllowed(self, problems):
     if self.bikes_allowed:
-      util.ValidateYesNoUnknown(self.bikes_allowed, 'bikes_allowed', problems)
+      transitfeed.util.ValidateYesNoUnknown(self.bikes_allowed, 'bikes_allowed', problems)
 
   def ValidateBeforeAdd(self, problems):
     self.ValidateRouteIdIsPresent(problems)
