@@ -17,11 +17,10 @@
 # Code shared between tests.
 from __future__ import absolute_import
 
-import dircache
 import os
 import os.path
 import re
-import cStringIO as StringIO
+from six import StringIO
 import shutil
 import subprocess
 import sys
@@ -75,7 +74,7 @@ def DataPath(path):
 
 def GetDataPathContents():
   here = os.path.dirname(__file__)
-  return dircache.listdir(os.path.join(here, 'data'))
+  return os.listdir(os.path.join(here, 'data'))
 
 
 class TestCase(unittest.TestCase):
@@ -96,7 +95,7 @@ class RedirectStdOutTestCaseBase(TestCase):
   """Save stdout to the StringIO buffer self.this_stdout"""
   def setUp(self):
     self.saved_stdout = sys.stdout
-    self.this_stdout = StringIO.StringIO()
+    self.this_stdout = StringIO()
     sys.stdout = self.this_stdout
 
   def tearDown(self):
@@ -197,7 +196,7 @@ class TempDirTestCaseBase(GetPathTestCase):
 
     Returns:
         The new file's in-memory contents as a file-like object."""
-    zipfile_mem = StringIO.StringIO()
+    zipfile_mem = StringIO()
     zip = zipfile.ZipFile(zipfile_mem, 'a')
     for arcname, contents in dict.items():
       zip.writestr(arcname, contents)
@@ -319,7 +318,7 @@ class MemoryZipTestCase(TestCase):
 
   def CreateZip(self):
     """Create an in-memory GTFS zipfile from the contents of the file dict."""
-    self.zipfile = StringIO.StringIO()
+    self.zipfile = StringIO()
     self.zip = zipfile.ZipFile(self.zipfile, 'a')
     for (arcname, contents) in self.zip_contents.items():
       self.zip.writestr(arcname, contents)
