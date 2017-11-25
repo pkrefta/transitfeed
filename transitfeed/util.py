@@ -32,7 +32,7 @@ try:
 except ImportError:
     from urllib2 import urlopen, Request, HTTPError, URLError
 
-import problems as problems_module
+import transitfeed.problems as problems_module
 from trip import Trip
 from version import __version__
 

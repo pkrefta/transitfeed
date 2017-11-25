@@ -17,7 +17,7 @@
 import logging
 import time
 
-import util
+import transitfeed.util
 
 # Problem types:
 # Error: A data issue not allowed by the GTFS spec.
@@ -125,7 +125,7 @@ class ProblemReporter(object):
   def DeprecatedColumn(self, file_name, column_name, new_name, context=None,
                        type=TYPE_WARNING):
     reason = None
-    if not util.IsEmpty(new_name):
+    if not transitfeed.util.IsEmpty(new_name):
       reason = 'Please use the new column "%s" instead.' % (new_name)
     e = DeprecatedColumn(file_name=file_name, column_name=column_name,
                          reason=reason, context=context, context2=self._context,
@@ -359,7 +359,7 @@ class ProblemReporter(object):
       type=TYPE_WARNING):
     e = TooManyConsecutiveStopTimesWithSameTime(trip_id=trip_id,
         number_of_stop_times=number_of_stop_times,
-        stop_time=util.FormatSecondsSinceMidnight(time_in_secs),
+        stop_time=transitfeed.util.FormatSecondsSinceMidnight(time_in_secs),
         context=None,
         context2=self._context,
         type=type)
@@ -379,7 +379,7 @@ class SimpleProblemAccumulator(ProblemAccumulatorInterface):
     context = e.FormatContext()
     if context:
       print(context)
-    print(util.EncodeUnicode(self._LineWrap(e.FormatProblem(), 78)))
+    print(transitfeed.util.EncodeUnicode(self._LineWrap(e.FormatProblem(), 78)))
 
   @staticmethod
   def _LineWrap(text, width):
@@ -459,7 +459,7 @@ class ExceptionWithContext(Exception):
       # the problem reporter convert all unicode attributes to utf-8.
       # Currently valid utf-8 fields are converted to unicode in _ReadCsvDict.
       # Perhaps all fields should be left as utf-8.
-      d[k] = util.EncodeUnicode(v)
+      d[k] = transitfeed.util.EncodeUnicode(v)
     return d
 
   def FormatProblem(self, d=None):
