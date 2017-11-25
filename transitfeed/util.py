@@ -26,6 +26,7 @@ import socket
 import sys
 import time
 
+from six import string_types
 try:
     from urllib.request import urlopen, Request
     from urllib.error import HTTPError, URLError
@@ -449,7 +450,7 @@ def ValidateYesNoUnknown(value, column_name=None, problems=None):
     return False
 
 def IsEmpty(value):
-  return value is None or (isinstance(value, basestring) and not value.strip())
+  return value is None or (isinstance(value, string_types) and not value.strip())
 
 def FindUniqueId(dic):
   """Return a string not used as a key in the dictionary dic"""
