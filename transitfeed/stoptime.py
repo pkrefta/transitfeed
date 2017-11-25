@@ -14,9 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import problems as problems_module
-from stop import Stop
-import util
+import transitfeed.problems as problems_module
+from transitfeed.stop import Stop
+import transitfeed.util
 
 class StopTime(object):
   """
@@ -83,7 +83,7 @@ class StopTime(object):
       arrival_time = None
     else:
       try:
-        self.arrival_secs = util.TimeToSecondsSinceMidnight(arrival_time)
+        self.arrival_secs = transitfeed.util.TimeToSecondsSinceMidnight(arrival_time)
       except problems_module.Error:
         problems.InvalidValue('arrival_time', arrival_time)
         self.arrival_secs = None
@@ -95,7 +95,7 @@ class StopTime(object):
       departure_time = None
     else:
       try:
-        self.departure_secs = util.TimeToSecondsSinceMidnight(departure_time)
+        self.departure_secs = transitfeed.util.TimeToSecondsSinceMidnight(departure_time)
       except problems_module.Error:
         problems.InvalidValue('departure_time', departure_time)
         self.departure_secs = None
@@ -105,12 +105,12 @@ class StopTime(object):
       problems.InvalidValue('stop', stop)
     self.stop = stop
     self.stop_headsign = stop_headsign
-    self.timepoint = util.ValidateAndReturnIntValue(
+    self.timepoint = transitfeed.util.ValidateAndReturnIntValue(
         timepoint, [0, 1], None, True, 'timepoint', problems)
 
-    self.pickup_type = util.ValidateAndReturnIntValue(
+    self.pickup_type = transitfeed.util.ValidateAndReturnIntValue(
         pickup_type, [0, 1, 2, 3], None, True, 'pickup_type', problems)
-    self.drop_off_type = util.ValidateAndReturnIntValue(
+    self.drop_off_type = transitfeed.util.ValidateAndReturnIntValue(
         drop_off_type, [0, 1, 2, 3], None, True, 'drop_off_type', problems)
 
     if (self.pickup_type == 1 and self.drop_off_type == 1 and
@@ -213,10 +213,10 @@ class StopTime(object):
       return self.stop.stop_id
     elif name == 'arrival_time':
       return (self.arrival_secs != None and
-          util.FormatSecondsSinceMidnight(self.arrival_secs) or '')
+          transitfeed.util.FormatSecondsSinceMidnight(self.arrival_secs) or '')
     elif name == 'departure_time':
       return (self.departure_secs != None and
-          util.FormatSecondsSinceMidnight(self.departure_secs) or '')
+          transitfeed.util.FormatSecondsSinceMidnight(self.departure_secs) or '')
     elif name == 'shape_dist_traveled':
       return ''
     raise AttributeError(name)

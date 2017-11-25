@@ -16,9 +16,9 @@
 
 import warnings
 
-from gtfsobjectbase import GtfsObjectBase
-import problems as problems_module
-import util
+from transitfeed.gtfsobjectbase import GtfsObjectBase
+import transitfeed.problems as problems_module
+import transitfeed.util
 
 class Stop(GtfsObjectBase):
   """Represents a single stop. A stop must have a latitude, longitude and name.
@@ -150,7 +150,7 @@ class Stop(GtfsObjectBase):
       value = self.stop_lat
       try:
         if not isinstance(value, (float, int)):
-          self.stop_lat = util.FloatStringToFloat(value, problems)
+          self.stop_lat = transitfeed.util.FloatStringToFloat(value, problems)
       except (ValueError, TypeError):
         problems.InvalidValue('stop_lat', value)
         del self.stop_lat
@@ -163,7 +163,7 @@ class Stop(GtfsObjectBase):
       value = self.stop_lon
       try:
         if not isinstance(value, (float, int)):
-          self.stop_lon = util.FloatStringToFloat(value, problems)
+          self.stop_lon = transitfeed.util.FloatStringToFloat(value, problems)
       except (ValueError, TypeError):
         problems.InvalidValue('stop_lon', value)
         del self.stop_lon
@@ -173,7 +173,7 @@ class Stop(GtfsObjectBase):
 
   def ValidateStopUrl(self, problems):
       value = self.stop_url
-      if value and not util.ValidateURL(value, 'stop_url', problems):
+      if value and not transitfeed.util.ValidateURL(value, 'stop_url', problems):
         del self.stop_url
 
   def ValidateStopLocationType(self, problems):
@@ -193,7 +193,7 @@ class Stop(GtfsObjectBase):
 
   def ValidateStopRequiredFields(self, problems):
     for required in self._REQUIRED_FIELD_NAMES:
-      if util.IsEmpty(getattr(self, required, None)):
+      if transitfeed.util.IsEmpty(getattr(self, required, None)):
         self._ReportMissingRequiredField(problems, required)
 
   def _ReportMissingRequiredField(self, problems, required):
@@ -211,7 +211,7 @@ class Stop(GtfsObjectBase):
 
   def ValidateStopDescriptionAndNameAreDifferent(self, problems):
     if (self.stop_desc and self.stop_name and
-        not util.IsEmpty(self.stop_desc) and
+        not transitfeed.util.IsEmpty(self.stop_desc) and
         self.stop_name.strip().lower() == self.stop_desc.strip().lower()):
       problems.InvalidValue('stop_desc', self.stop_desc,
                             'stop_desc should not be the same as stop_name',
@@ -226,16 +226,16 @@ class Stop(GtfsObjectBase):
   def ValidateStopTimezone(self, problems):
     # Entrances or other child stops (having a parent station) must not have a
     # stop_timezone.
-    util.ValidateTimezone(self.stop_timezone, 'stop_timezone', problems)
-    if (not util.IsEmpty(self.parent_station) and
-        not util.IsEmpty(self.stop_timezone)):
+    transitfeed.util.ValidateTimezone(self.stop_timezone, 'stop_timezone', problems)
+    if (not transitfeed.util.IsEmpty(self.parent_station) and
+        not transitfeed.util.IsEmpty(self.stop_timezone)):
       problems.InvalidValue('stop_timezone', self.stop_timezone,
           reason='a stop having a parent stop must not have a stop_timezone',
           type=problems_module.TYPE_WARNING)
 
   def ValidateWheelchairBoarding(self, problems):
     if self.wheelchair_boarding:
-      util.ValidateYesNoUnknown(
+      transitfeed.util.ValidateYesNoUnknown(
           self.wheelchair_boarding, 'wheelchair_boarding', problems)
 
   def ValidateBeforeAdd(self, problems):
