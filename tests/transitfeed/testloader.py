@@ -17,7 +17,6 @@ from __future__ import absolute_import
 
 import re
 import io
-from six import StringIO
 import tempfile
 from tests import util
 import transitfeed
@@ -62,7 +61,7 @@ class EndOfLineCheckerTestCase(util.TestCase):
       pass
 
   def testInvalidLineEnd(self):
-    f = transitfeed.EndOfLineChecker(StringIO("line1\r\r\nline2"),
+    f = transitfeed.EndOfLineChecker(io.BytesIO("line1\r\r\nline2"),
                                      "<StringIO>",
                                      self.problems)
     self.RunEndOfLineChecker(f)
@@ -74,7 +73,7 @@ class EndOfLineCheckerTestCase(util.TestCase):
 
   def testInvalidLineEndToo(self):
     f = transitfeed.EndOfLineChecker(
-        StringIO("line1\nline2\r\nline3\r\r\r\n"),
+        io.BytesIO("line1\nline2\r\nline3\r\r\r\n"),
         "<StringIO>", self.problems)
     self.RunEndOfLineChecker(f)
     e = self.accumulator.PopException("InvalidLineEnd")
@@ -88,7 +87,7 @@ class EndOfLineCheckerTestCase(util.TestCase):
 
   def testEmbeddedCr(self):
     f = transitfeed.EndOfLineChecker(
-        StringIO("line1\rline1b"),
+        io.BytesIO("line1\rline1b"),
         "<StringIO>", self.problems)
     self.RunEndOfLineChecker(f)
     e = self.accumulator.PopException("OtherProblem")
@@ -100,7 +99,7 @@ class EndOfLineCheckerTestCase(util.TestCase):
 
   def testEmbeddedUtf8NextLine(self):
     f = transitfeed.EndOfLineChecker(
-        StringIO("line1b\xc2\x85"),
+        io.BytesIO("line1b\xc2\x85"),
         "<StringIO>", self.problems)
     self.RunEndOfLineChecker(f)
     e = self.accumulator.PopException("OtherProblem")
@@ -112,7 +111,7 @@ class EndOfLineCheckerTestCase(util.TestCase):
 
   def testEndOfLineMix(self):
     f = transitfeed.EndOfLineChecker(
-        StringIO("line1\nline2\r\nline3\nline4"),
+        io.BytesIO("line1\nline2\r\nline3\nline4"),
         "<StringIO>", self.problems)
     self.RunEndOfLineChecker(f)
     e = self.accumulator.PopException("OtherProblem")
@@ -125,7 +124,7 @@ class EndOfLineCheckerTestCase(util.TestCase):
 
   def testEndOfLineManyMix(self):
     f = transitfeed.EndOfLineChecker(
-        StringIO("1\n2\n3\n4\n5\n6\n7\r\n8\r\n9\r\n10\r\n11\r\n"),
+        io.BytesIO("1\n2\n3\n4\n5\n6\n7\r\n8\r\n9\r\n10\r\n11\r\n"),
         "<StringIO>", self.problems)
     self.RunEndOfLineChecker(f)
     e = self.accumulator.PopException("OtherProblem")
@@ -204,7 +203,7 @@ class ZipCompressionTestCase(util.MemoryZipTestCase):
   def runTest(self):
     schedule = self.MakeLoaderAndLoad()
     self.zip.close()
-    write_output = StringIO()
+    write_output = io.BytesIO()
     schedule.WriteGoogleTransitFeed(write_output)
     recompressedzip = zlib.compress(write_output.getvalue())
     write_size = len(write_output.getvalue())
