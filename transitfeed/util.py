@@ -232,7 +232,7 @@ def CheckVersion(problems, latest_version=None):
 
 
 def _MaxVersion(versions):
-  versions = filter(None, versions)
+  versions = list(filter(None, versions))
   versions.sort(lambda x,y: -cmp([int(item) for item in x.split('.')],
                                  [int(item) for item in y.split('.')]))
   if len(versions) > 0:
@@ -616,7 +616,7 @@ class EndOfLineChecker:
   def next(self):
     """Return next line without end of line marker or raise StopIteration."""
     try:
-      next_line = self._f.next()
+      next_line = next(self._f)
     except StopIteration:
       self._FinalCheck()
       raise
@@ -634,7 +634,7 @@ class EndOfLineChecker:
     elif m_eol.group() == "":
       # Should only happen at the end of the file
       try:
-        self._f.next()
+        next(self._f)
         raise RuntimeError("Unexpected row without new line sequence")
       except StopIteration:
         # Will be raised again when EndOfLineChecker.next() is next called
@@ -673,6 +673,8 @@ class EndOfLineChecker:
       # case that it is run twice
       self._crlf = 0
       self._lf = 0
+
+EndOfLineChecker.__next__ = EndOfLineChecker.next
 
 
 class ISO639(object):
