@@ -37,8 +37,6 @@ try:
 except ImportError:
     from urllib2 import urlopen, Request, HTTPError, URLError
 
-import urllib2
-
 
 class ColorLuminanceTestCase(test_util.TestCase):
   def runTest(self):
@@ -264,14 +262,14 @@ class NonNegIntStringToIntTestCase(test_util.TestCase):
 
 class CheckVersionTestCase(test_util.TempDirTestCaseBase):
   def setUp(self):
-    self.orig_urlopen = urllib2.urlopen
+    self.orig_urlopen = urlopen
     self.mock = MockURLOpen()
     self.accumulator = test_util.RecordingProblemAccumulator(self)
     self.problems = ProblemReporter(self.accumulator)
 
   def tearDown(self):
     self.mock = None
-    urllib2.urlopen = self.orig_urlopen
+    urlopen = self.orig_urlopen
 
   def testAssignedDifferentVersion(self):
     util.CheckVersion(self.problems, '100.100.100')
@@ -323,7 +321,7 @@ class CheckVersionTestCase(test_util.TempDirTestCaseBase):
 
 
 class MockURLOpen:
-  """Pretend to be a urllib2.urlopen suitable for testing."""
+  """Pretend to be a urlopen suitable for testing."""
   def mockedConnectSuccess(self, request):
     return StringIO('latest_version=100.0.1')
 
