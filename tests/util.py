@@ -21,6 +21,7 @@ import os
 import os.path
 import re
 from six import StringIO
+import io
 import shutil
 import subprocess
 import sys
@@ -318,7 +319,7 @@ class MemoryZipTestCase(TestCase):
 
   def CreateZip(self):
     """Create an in-memory GTFS zipfile from the contents of the file dict."""
-    self.zipfile = StringIO()
+    self.zipfile = io.BytesIO()
     self.zip = zipfile.ZipFile(self.zipfile, 'a')
     for (arcname, contents) in self.zip_contents.items():
       self.zip.writestr(arcname, contents)

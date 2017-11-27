@@ -16,6 +16,7 @@
 from __future__ import absolute_import
 
 import re
+import io
 from six import StringIO
 import tempfile
 from tests import util
@@ -462,7 +463,7 @@ class CsvDictTestCase(util.TestCase):
   def setUp(self):
     self.accumulator = util.RecordingProblemAccumulator(self)
     self.problems = transitfeed.ProblemReporter(self.accumulator)
-    self.zip = zipfile.ZipFile(StringIO(), 'a')
+    self.zip = zipfile.ZipFile(io.BytesIO(), 'a')
     self.loader = transitfeed.Loader(
         problems=self.problems,
         zip=self.zip)
@@ -733,7 +734,7 @@ class ReadCsvTestCase(util.TestCase):
   def setUp(self):
     self.accumulator = util.RecordingProblemAccumulator(self)
     self.problems = transitfeed.ProblemReporter(self.accumulator)
-    self.zip = zipfile.ZipFile(StringIO(), 'a')
+    self.zip = zipfile.ZipFile(io.BytesIO(), 'a')
     self.loader = transitfeed.Loader(
         problems=self.problems,
         zip=self.zip)
