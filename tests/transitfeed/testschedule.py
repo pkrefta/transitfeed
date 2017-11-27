@@ -921,7 +921,7 @@ class ServiceGapsTestCase(util.MemoryZipTestCase):
   # If the feed starts today NO previous service gap should be found
   # even if today does not have service
   def testNoServiceGapBeforeTodayIfTheFeedStartsToday(self):
-    self.schedule.Validate(today=date(2009, 06, 01),
+    self.schedule.Validate(today=date(2009, 6, 1),
                            service_gap_interval=13)
 
     # This service gap is the one between FULLW and WE

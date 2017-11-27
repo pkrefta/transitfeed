@@ -162,7 +162,7 @@ class Loader:
     # integer and id fields; they will be validated at higher levels.
     reader = csv.reader(eol_checker, skipinitialspace=True)
 
-    raw_header = reader.next()
+    raw_header = next(reader)
     header_occurrences = transitfeed.util.defaultdict(lambda: 0)
     header = []
     valid_columns = []  # Index into raw_header and raw_row
@@ -292,8 +292,8 @@ class Loader:
                                    file_name, self._problems)
     reader = csv.reader(eol_checker)  # Use excel dialect
 
-    header = reader.next()
-    header = map(lambda x: x.strip(), header)  # trim any whitespace
+    header = next(reader)
+    header = list(map(lambda x: x.strip(), header))  # trim any whitespace
     header_occurrences = transitfeed.util.defaultdict(lambda: 0)
     for column_header in header:
       header_occurrences[column_header] += 1

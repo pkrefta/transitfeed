@@ -17,6 +17,8 @@
 import logging
 import time
 
+from six.moves import reduce
+
 import transitfeed.util
 
 # Problem types:

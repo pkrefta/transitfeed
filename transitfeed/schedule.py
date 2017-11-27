@@ -16,6 +16,7 @@
 
 import bisect
 from six import StringIO
+from six.moves import reduce
 import datetime
 import itertools
 import os
@@ -276,7 +277,7 @@ class Schedule(object):
     end_date in calendar.txt, a service exception of type add in
     calendar_dates.txt, or feed start/end date defined in feed_info.txt.
     """
-    period_list = self.GetServicePeriodList()
+    period_list = list(self.GetServicePeriodList())
     ranges = [period.GetDateRange() for period in period_list]
     starts = filter(lambda x: x, [item[0] for item in ranges])
     ends = filter(lambda x: x, [item[1] for item in ranges])
@@ -284,8 +285,8 @@ class Schedule(object):
     if not starts or not ends:
       return (None, None, None, None)
 
-    minvalue, minindex = min(itertools.izip(starts, itertools.count()))
-    maxvalue, maxindex = max(itertools.izip(ends, itertools.count()))
+    minvalue, minindex = min(zip(starts, itertools.count()))
+    maxvalue, maxindex = max(zip(ends, itertools.count()))
 
     minreason = (period_list[minindex].HasDateExceptionOn(minvalue) and
                  "earliest service exception date in calendar_dates.txt" or
@@ -1026,8 +1027,8 @@ class Schedule(object):
     # each pair of stations within 2 meters latitude of each other. This avoids
     # doing n^2 comparisons in the average case and doesn't need a spatial
     # index.
-    sorted_stops = filter(lambda s: s.stop_lat and s.stop_lon,
-                          self.GetStopList())
+    sorted_stops = list(filter(lambda s: s.stop_lat and s.stop_lon,
+                          self.GetStopList()))
     sorted_stops.sort(
         key=(lambda x: [x.stop_lat, x.stop_lon, getattr(x, 'stop_id', None)]))
     TWO_METERS_LAT = 0.000018
