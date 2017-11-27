@@ -1027,8 +1027,8 @@ class Schedule(object):
     # each pair of stations within 2 meters latitude of each other. This avoids
     # doing n^2 comparisons in the average case and doesn't need a spatial
     # index.
-    sorted_stops = filter(lambda s: s.stop_lat and s.stop_lon,
-                          self.GetStopList())
+    sorted_stops = list(filter(lambda s: s.stop_lat and s.stop_lon,
+                          self.GetStopList()))
     sorted_stops.sort(
         key=(lambda x: [x.stop_lat, x.stop_lon, getattr(x, 'stop_id', None)]))
     TWO_METERS_LAT = 0.000018
