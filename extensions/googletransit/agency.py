@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import extensions.googletransit.extension_util as extension_util
+from . import extension_util
 import transitfeed
 
 class Agency(transitfeed.Agency):

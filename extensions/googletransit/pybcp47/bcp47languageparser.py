@@ -74,11 +74,11 @@ class Bcp47LanguageParser(object):
     # Load the entries from the registry file in this package.
     line_iterator = self._GetLinesFromLanguageSubtagRegistryFile()
     # Read the header lines with the File-Date record.
-    first_line, line_number = line_iterator.next()
+    first_line, line_number = next(line_iterator)
     if not first_line[:11] == 'File-Date: ':
       raise FileParseError(line_number,
           "Invalid first line '%s'! Must be a File-Date record." % (first_line))
-    second_line, line_number = line_iterator.next()
+    second_line, line_number = next(line_iterator)
     if not second_line == '%%':
       raise FileParseError(line_number,
           "Invalid first record '%s'! Must start with '%%%%'." % (second_line))
