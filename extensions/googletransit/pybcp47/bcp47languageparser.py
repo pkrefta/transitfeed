@@ -16,6 +16,7 @@
 
 import codecs
 import os
+from functools import reduce
 from pkg_resources import resource_string
 import re
 import string
