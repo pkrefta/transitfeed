@@ -462,7 +462,7 @@ def TimeToSecondsSinceMidnight(time_string):
   m = re.match(r'(\d{1,3}):([0-5]\d):([0-5]\d)$', time_string)
   # ignored: matching for leap seconds
   if not m:
-    raise problems_module.Error, 'Bad HH:MM:SS "%s"' % time_string
+    raise problems_module.Error('Bad HH:MM:SS "%s"' % time_string)
   return int(m.group(1)) * 3600 + int(m.group(2)) * 60 + int(m.group(3))
 
 def FormatSecondsSinceMidnight(s):
