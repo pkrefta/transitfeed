@@ -579,12 +579,12 @@ class CsvUnicodeWriter:
 # Map from literal string that should never be found in the csv data to a human
 # readable description
 INVALID_LINE_SEPARATOR_UTF8 = {
-    "\x0c": "ASCII Form Feed 0x0C",
+    b"\x0c": "ASCII Form Feed 0x0C",
     # May be part of end of line, but not found elsewhere
-    "\x0d": "ASCII Carriage Return 0x0D, \\r",
-    "\xe2\x80\xa8": "Unicode LINE SEPARATOR U+2028",
-    "\xe2\x80\xa9": "Unicode PARAGRAPH SEPARATOR U+2029",
-    "\xc2\x85": "Unicode NEXT LINE SEPARATOR U+0085",
+    b"\x0d": "ASCII Carriage Return 0x0D, \\r",
+    b"\xe2\x80\xa8": "Unicode LINE SEPARATOR U+2028",
+    b"\xe2\x80\xa9": "Unicode PARAGRAPH SEPARATOR U+2029",
+    b"\xc2\x85": "Unicode NEXT LINE SEPARATOR U+0085",
 }
 
 class EndOfLineChecker:
@@ -622,7 +622,7 @@ class EndOfLineChecker:
       raise
 
     self._line_number += 1
-    m_eol = re.search(r"[\x0a\x0d]*$", next_line)
+    m_eol = re.search(b"[\x0a\x0d]*$", next_line)
     if m_eol.group() == "\x0d\x0a":
       self._crlf += 1
       if self._crlf <= 5:

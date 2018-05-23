@@ -130,7 +130,7 @@ class Loader:
       # Convert and continue, so we can find more errors
       contents = codecs.getdecoder('utf-16')(contents)[0].encode('utf-8')
 
-    null_index = contents.find('\0')
+    null_index = contents.find(b'\0')
     if null_index != -1:
       # It is easier to get some surrounding text than calculate the exact
       # row_num
