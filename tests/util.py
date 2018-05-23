@@ -329,7 +329,7 @@ class MemoryZipTestCase(TestCase):
     # Handy for debugging
     z = zipfile.ZipFile(zf)
     for n in z.namelist():
-      print "--\n%s\n%s" % (n, z.read(n))
+      print("--\n%s\n%s" % (n, z.read(n)))
 
 
 class LoadTestCase(TestCase):

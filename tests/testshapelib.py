@@ -48,21 +48,21 @@ class ShapeLibTestBase(util.TestCase):
       self.assertApproxEq(a.y, b.y)
       self.assertApproxEq(a.z, b.z)
     except AssertionError:
-      print 'ERROR: %s != %s' % (formatPoint(a), formatPoint(b))
+      print('ERROR: %s != %s' % (formatPoint(a), formatPoint(b)))
       raise
 
   def assertPointsApproxEq(self, points1, points2):
     try:
       self.assertEqual(len(points1), len(points2))
     except AssertionError:
-      print "ERROR: %s != %s" % (formatPoints(points1), formatPoints(points2))
+      print("ERROR: %s != %s" % (formatPoints(points1), formatPoints(points2)))
       raise
     for i in xrange(len(points1)):
       try:
         self.assertPointApproxEq(points1[i], points2[i])
       except AssertionError:
-        print ('ERROR: points not equal in position %d\n%s != %s'
-               % (i, formatPoints(points1), formatPoints(points2)))
+        print(('ERROR: points not equal in position %d\n%s != %s'
+               % (i, formatPoints(points1), formatPoints(points2))))
         raise
 
 
