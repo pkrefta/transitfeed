@@ -29,6 +29,10 @@ import unittest
 from tests import util
 
 
+def xrange(x):
+    return iter(range(x))
+
+
 def formatPoint(p, precision=12):
   formatString = "(%%.%df, %%.%df, %%.%df)" % (precision, precision, precision)
   return formatString % (p.x, p.y, p.z)

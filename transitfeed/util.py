@@ -557,10 +557,7 @@ class CsvUnicodeWriter:
     utf-8."""
     encoded_row = []
     for s in row:
-      if isinstance(s, unicode):
-        encoded_row.append(s.encode("utf-8"))
-      else:
-        encoded_row.append(s)
+      encoded_row.append(s.encode("utf-8"))
     try:
       self.writer.writerow(encoded_row)
     except Exception as e:
